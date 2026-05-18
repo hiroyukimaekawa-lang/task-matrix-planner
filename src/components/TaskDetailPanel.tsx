@@ -91,17 +91,17 @@ export default function TaskDetailPanel({
     }
   };
 
-  // 優先度スコアから日本語ラベルを返す
+  // 優先度スコアから日本語ラベルを返す (0〜8点)
   const getPriorityLabel = (score: number) => {
-    if (score >= 8.0) return '重大';
-    if (score >= 5.0) return '高';
+    if (score >= 7) return '重大';
+    if (score >= 4) return '高';
     return '通常';
   };
 
-  // 優先度スコアに応じた背景色クラスを返す
+  // 優先度スコアに応じた背景色クラスを返す (0〜8点)
   const getPriorityColor = (score: number) => {
-    if (score >= 8.0) return 'text-red-600 bg-red-50';
-    if (score >= 5.0) return 'text-orange-600 bg-orange-50';
+    if (score >= 7) return 'text-red-600 bg-red-50';
+    if (score >= 4) return 'text-orange-600 bg-orange-50';
     return 'text-blue-600 bg-blue-50';
   };
 
@@ -144,7 +144,7 @@ export default function TaskDetailPanel({
           <p className="text-xs font-medium text-slate-500 mb-2">優先度</p>
           <div className={`px-3 py-2 rounded-lg ${getPriorityColor(priority)}`}>
             <p className="text-sm font-semibold">{getPriorityLabel(priority)}</p>
-            <p className="text-xs opacity-75">スコア：{priority.toFixed(1)}</p>
+            <p className="text-xs opacity-75">スコア：{priority}/8</p>
           </div>
         </div>
 

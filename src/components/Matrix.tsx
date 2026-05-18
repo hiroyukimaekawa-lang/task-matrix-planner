@@ -6,21 +6,21 @@ const PADDING = 60;
 const GRAPH_SIZE = 500;
 const SCALE = 4;
 
-// タスクの色を優先度・状態に応じて決定する
+// タスクの色を優先度・状態に応じて決定する (0〜8点)
 function getTaskColor(task: Task, priority: number): string {
   if (task.status === 'completed') return '#d1d5db';
   if (isOverdue(task)) return '#ef4444';
-  if (priority >= 8.0) return '#dc2626'; // 高優先度（赤）
-  if (priority >= 5.0) return '#f97316'; // 中優先度（オレンジ）
+  if (priority >= 7) return '#dc2626'; // 高優先度（赤）
+  if (priority >= 4) return '#f97316'; // 中優先度（オレンジ）
   return '#3b82f6'; // 通常（青）
 }
 
-// タスク円のサイズを優先度・状態に応じて決定する
+// タスク円のサイズを優先度・状態に応じて決定する (0〜8点)
 function getTaskRadius(task: Task, priority: number): number {
   if (task.status === 'completed') return 12;
   if (isOverdue(task)) return 20;
-  if (priority >= 8.0) return 18;
-  if (priority >= 5.0) return 16;
+  if (priority >= 7) return 18;
+  if (priority >= 4) return 16;
   return 14;
 }
 

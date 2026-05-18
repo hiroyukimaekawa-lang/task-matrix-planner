@@ -52,19 +52,11 @@ export function calculateUrgency(dueDate: string, importance: number): number {
   return Math.min(4, Math.max(0, finalUrgency));
 }
 
-// 優先度スコアを計算する（10点満点）
-// 計算式：(緊急度×25 + 重要度×18.75 + 時間係数) / 27.5
+// 優先度スコアを計算する（8点満点）
+// 計算式：重要度 (0〜4) + 緊急度 (0〜4)
 export function calculatePriorityScore(task: Task): number {
   if (task.status === 'completed') return 0;
-
-  const daysUntilDue = calculateDaysUntilDue(task.dueDate);
-  const urgencyWeight = task.urgency * 25;
-  const importanceWeight = task.importance * 18.75;
-  const timeWeight = daysUntilDue <= 0 ? 100 : Math.max(0, 50 - daysUntilDue * 2);
-
-  const rawScore = urgencyWeight + importanceWeight + timeWeight;
-  // 10点満点にスケーリングし、小数点第一位に丸める（最大10.0）
-  return Math.round((rawScore / 27.5) * 10) / 10;
+  return task.importance + task.urgency;
 }
 
 // タスクが期限切れかどうかを判定する

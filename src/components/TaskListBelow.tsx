@@ -6,7 +6,7 @@ import { calculatePriorityScore, calculateDaysUntilDue, isOverdue } from '../uti
 function ScoreDots({ value, color }: { value: number; color: string }) {
   return (
     <span className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
+      {[1, 2, 3, 4].map((i) => (
         <span key={i} className={`w-1.5 h-1.5 rounded-full ${i <= value ? color : 'bg-slate-200'}`} />
       ))}
     </span>
@@ -67,7 +67,7 @@ export default function TaskListBelow({ tasks, onSelectTask, onComplete, onDelet
                   className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
                     overdue
                       ? 'bg-red-50 border border-red-200 hover:border-red-300'
-                      : priority >= 5.0
+                      : priority >= 4
                         ? 'bg-amber-50 border border-amber-200 hover:border-amber-300'
                         : 'bg-slate-50 border border-slate-200 hover:border-slate-300'
                   }`}
@@ -77,9 +77,9 @@ export default function TaskListBelow({ tasks, onSelectTask, onComplete, onDelet
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${
                       overdue
                         ? 'bg-red-500'
-                        : priority >= 8.0
+                        : priority >= 7
                           ? 'bg-red-600'
-                          : priority >= 5.0
+                          : priority >= 4
                             ? 'bg-orange-500'
                             : 'bg-blue-500'
                     }`}
@@ -110,14 +110,14 @@ export default function TaskListBelow({ tasks, onSelectTask, onComplete, onDelet
                     </div>
                     <div
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        priority >= 8.0
+                        priority >= 7
                           ? 'bg-red-100 text-red-700'
-                          : priority >= 5.0
+                          : priority >= 4
                             ? 'bg-amber-100 text-amber-700'
                             : 'bg-green-100 text-green-700'
                       }`}
                     >
-                      {priority.toFixed(1)}
+                      {priority}/8
                     </div>
                   </div>
 
