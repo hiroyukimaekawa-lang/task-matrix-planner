@@ -38,8 +38,13 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       return;
     }
     try {
+      // Firestore does not accept "undefined" fields. We filter them out.
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, v]) => v !== undefined)
+      );
+
       await addDoc(collection(db, 'tasks'), {
-        ...data,
+        ...cleanData,
         userId: user.uid,
         status: 'todo',
         createdAt: new Date().toISOString(),
@@ -52,7 +57,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   updateTask: async (id, updates) => {
     try {
       const taskDocRef = doc(db, 'tasks', id);
-      await updateDoc(taskDocRef, updates);
+      // Firestore does not accept "undefined" fields. We filter them out.
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, v]) => v !== undefined)
+      );
+      await updateDoc(taskDocRef, cleanUpdates);
     } catch (error) {
       console.error('Error updating document in Firestore:', error);
     }
