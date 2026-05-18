@@ -11,4 +11,5 @@ export interface Task {
   urgency: 1 | 2 | 3 | 4 | 5;
   status: TaskStatus;
   createdAt: string;
+  memo?: string; // メモ (任意)
 }

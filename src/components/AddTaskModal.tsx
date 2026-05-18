@@ -8,9 +8,10 @@ type FormData = {
   dueDate: string;
   dueTime: string;
   importance: number;
+  memo: string;
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 3 };
+const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 3, memo: '' };
 
 interface Props {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
       dueTime: form.dueTime || undefined,
       importance: form.importance as Task['importance'],
       urgency: calculateUrgency(form.dueDate, form.importance) as Task['urgency'],
+      memo: form.memo.trim() || undefined,
     });
 
     setForm(defaultForm);
@@ -170,6 +172,20 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
                   </span>
                 )}
               </div>
+            </div>
+
+            {/* メモ */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                メモ (任意)
+              </label>
+              <textarea
+                value={form.memo}
+                onChange={(e) => setForm((f) => ({ ...f, memo: e.target.value }))}
+                placeholder="タスクの詳細やリンクなどを入力してください"
+                rows={3}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+              />
             </div>
 
             {/* エラーメッセージ */}

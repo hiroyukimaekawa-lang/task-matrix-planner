@@ -200,6 +200,20 @@ export default function TaskDetailPanel({
           </div>
         </div>
 
+        {/* メモの設定 */}
+        <div>
+          <p className="text-xs font-medium text-slate-500 mb-2">メモ (任意)</p>
+          <textarea
+            value={task.memo || ''}
+            onChange={(e) => {
+              onUpdate(task.id, { memo: e.target.value || undefined });
+            }}
+            placeholder="タスクの詳細やリンクなどを入力してください"
+            rows={3}
+            className="bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full resize-none"
+          />
+        </div>
+
         {/* Googleカレンダー連携 */}
         <div className="pt-2 border-t border-slate-200">
           <p className="text-xs font-medium text-slate-500 mb-2">カレンダー同期</p>
