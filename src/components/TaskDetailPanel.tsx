@@ -178,14 +178,25 @@ export default function TaskDetailPanel({
 
           <div>
             <p className="text-xs font-medium text-slate-500 mb-2">時間の設定</p>
-            <input
-              type="time"
+            <select
               value={task.dueTime || ''}
               onChange={(e) => {
                 onUpdate(task.id, { dueTime: e.target.value || undefined });
               }}
               className="bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full"
-            />
+            >
+              <option value="">設定なし</option>
+              {Array.from({ length: 48 }).map((_, i) => {
+                const h = Math.floor(i / 2);
+                const m = i % 2 === 0 ? '00' : '30';
+                const time = `${String(h).padStart(2, '0')}:${m}`;
+                return (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                );
+              })}
+            </select>
           </div>
         </div>
 

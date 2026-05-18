@@ -110,12 +110,23 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   時間 (任意)
                 </label>
-                <input
-                  type="time"
+                <select
                   value={form.dueTime}
                   onChange={(e) => setForm((f) => ({ ...f, dueTime: e.target.value }))}
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                />
+                >
+                  <option value="">設定なし</option>
+                  {Array.from({ length: 48 }).map((_, i) => {
+                    const h = Math.floor(i / 2);
+                    const m = i % 2 === 0 ? '00' : '30';
+                    const time = `${String(h).padStart(2, '0')}:${m}`;
+                    return (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
             </div>
 
