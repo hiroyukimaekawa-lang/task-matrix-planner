@@ -99,10 +99,10 @@ export default function QuickCreateForm({ onAdd }: Props) {
             </div>
           </div>
 
-          {/* 優先度（自動算出） */}
+          {/* 緊急度（自動算出） */}
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs text-slate-600">
-              <span>優先度</span>
+              <span>緊急度</span>
               <span className="font-semibold text-amber-600">
                 {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
               </span>

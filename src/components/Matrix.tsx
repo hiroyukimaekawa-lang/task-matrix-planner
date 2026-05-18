@@ -85,7 +85,7 @@ export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick
           重要度
         </text>
         <text x={PADDING - 30} y={yScale(2) + 5} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
-          優先度
+          緊急度
         </text>
 
 

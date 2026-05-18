@@ -156,10 +156,10 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
               </div>
             </div>
 
-            {/* 優先度（自動算出） */}
+            {/* 緊急度（自動算出） */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-slate-700">優先度</label>
+                <label className="text-sm font-medium text-slate-700">緊急度</label>
                 <span className="text-sm font-semibold text-amber-600">
                   {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
                 </span>
@@ -168,7 +168,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
                 期日と重要度に基づいて自動的に算出されます。
                 {form.dueDate && (
                   <span className="block mt-1.5 font-semibold text-slate-700">
-                    現在の算出結果: {calculateUrgency(form.dueDate, form.importance) >= 3 ? '🔴 高い優先度' : calculateUrgency(form.dueDate, form.importance) >= 2 ? '🟡 中程度の優先度' : '🟢 低い優先度'}
+                    現在の算出結果: {calculateUrgency(form.dueDate, form.importance) >= 3 ? '🔴 高い緊急度' : calculateUrgency(form.dueDate, form.importance) >= 2 ? '🟡 中程度の緊急度' : '🟢 低い緊急度'}
                   </span>
                 )}
               </div>
