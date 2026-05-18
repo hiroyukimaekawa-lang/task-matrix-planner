@@ -127,12 +127,13 @@ export async function syncTaskToGoogleCalendar(
       const data = await response.json();
       return data.id; // 新しい、または更新された Google カレンダー予定ID
     } else {
-      const errData = await response.json();
+      const errData = await response.json().catch(() => ({}));
       console.error('Failed to sync to Google Calendar:', errData);
-      return null;
+      const errMsg = errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errMsg);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in syncTaskToGoogleCalendar:', error);
-    return null;
+    throw error;
   }
 }

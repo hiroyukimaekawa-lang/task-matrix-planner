@@ -59,13 +59,27 @@ export default function TaskDetailPanel({
 
   const triggerSync = async (token: string) => {
     setIsSyncing(true);
-    const eventId = await syncTaskToGoogleCalendar(token, task);
-    setIsSyncing(false);
-    if (eventId) {
-      onUpdate(task.id, { googleEventId: eventId });
-      alert('Googleカレンダーに同期しました！');
-    } else {
-      alert('カレンダーの同期に失敗しました。再ログインをお試しください。');
+    try {
+      const eventId = await syncTaskToGoogleCalendar(token, task);
+      setIsSyncing(false);
+      if (eventId) {
+        onUpdate(task.id, { googleEventId: eventId });
+        alert('Googleカレンダーに同期しました！');
+      } else {
+        alert('カレンダーの同期に失敗しました。再ログインをお試しください。');
+      }
+    } catch (err: any) {
+      setIsSyncing(false);
+      const errMsg = err.message || '';
+      console.error('Detailed Sync Error:', err);
+      
+      if (errMsg.includes('API has not been used') || errMsg.includes('disabled')) {
+        alert('Google Cloud Consoleで「Google Calendar API」が有効化されていません。\nGoogle Cloud ConsoleのAPIライブラリより「Google Calendar API」を有効化（Enable）に設定してください。');
+      } else if (errMsg.includes('insufficient') || errMsg.includes('Permission') || errMsg.includes('auth')) {
+        alert('Googleカレンダーのアクセス権限（スコープ）が不足しています。\n一度ログアウトし、再度ログインする際に表示される追加のアクセス許可画面で、「Google カレンダーのすべての予定の表示、編集、共有、完全な削除」のチェックボックスを【必ずONにチェック】して進めてください。');
+      } else {
+        alert(`カレンダー同期エラーが発生しました:\n${errMsg}`);
+      }
     }
   };
 
