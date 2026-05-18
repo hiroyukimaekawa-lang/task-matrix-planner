@@ -11,7 +11,7 @@ type FormData = {
   memo: string;
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 3, memo: '' };
+const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 2, memo: '' };
 
 interface Props {
   isOpen: boolean;
@@ -136,10 +136,10 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium text-slate-700">重要度</label>
-                <span className="text-sm font-semibold text-slate-600">{form.importance}/5</span>
+                <span className="text-sm font-semibold text-slate-600">{form.importance}/4</span>
               </div>
               <div className="flex gap-1.5">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {[0, 1, 2, 3, 4].map((i) => (
                   <button
                     key={i}
                     type="button"
@@ -156,19 +156,19 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
               </div>
             </div>
 
-            {/* 緊急度（自動算出） */}
+            {/* 優先度（自動算出） */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-slate-700">緊急度</label>
+                <label className="text-sm font-medium text-slate-700">優先度</label>
                 <span className="text-sm font-semibold text-amber-600">
-                  {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/5` : '期日選択後に自動計算'}
+                  {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
                 </span>
               </div>
               <div className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
                 期日と重要度に基づいて自動的に算出されます。
                 {form.dueDate && (
                   <span className="block mt-1.5 font-semibold text-slate-700">
-                    現在の算出結果: {calculateUrgency(form.dueDate, form.importance) >= 4 ? '🔴 高い緊急度' : calculateUrgency(form.dueDate, form.importance) >= 3 ? '🟡 中程度の緊急度' : '🟢 低い緊急度'}
+                    現在の算出結果: {calculateUrgency(form.dueDate, form.importance) >= 3 ? '🔴 高い優先度' : calculateUrgency(form.dueDate, form.importance) >= 2 ? '🟡 中程度の優先度' : '🟢 低い優先度'}
                   </span>
                 )}
               </div>

@@ -9,7 +9,7 @@ type FormData = {
   importance: number;
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', importance: 3 };
+const defaultForm: FormData = { title: '', dueDate: '', importance: 2 };
 
 interface Props {
   onAdd: (data: Omit<Task, 'id' | 'status' | 'createdAt'>) => void;
@@ -81,10 +81,10 @@ export default function QuickCreateForm({ onAdd }: Props) {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-xs font-medium text-slate-600">重要度</label>
-              <span className="text-sm font-semibold text-slate-700">{form.importance}/5</span>
+              <span className="text-sm font-semibold text-slate-700">{form.importance}/4</span>
             </div>
             <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[0, 1, 2, 3, 4].map((i) => (
                 <button
                   key={i}
                   type="button"
@@ -99,12 +99,12 @@ export default function QuickCreateForm({ onAdd }: Props) {
             </div>
           </div>
 
-          {/* 緊急度（自動算出） */}
+          {/* 優先度（自動算出） */}
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs text-slate-600">
-              <span>緊急度</span>
+              <span>優先度</span>
               <span className="font-semibold text-amber-600">
-                {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/5` : '期日選択後に自動計算'}
+                {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
               </span>
             </div>
             <p className="text-[10px] text-slate-400">期日と重要度に基づき自動決定されます</p>

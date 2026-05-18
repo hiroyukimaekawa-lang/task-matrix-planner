@@ -4,7 +4,7 @@ import { calculatePriorityScore, isOverdue } from '../utils';
 
 const PADDING = 60;
 const GRAPH_SIZE = 500;
-const SCALE = 5;
+const SCALE = 4;
 
 // タスクの色を優先度・状態に応じて決定する
 function getTaskColor(task: Task, priority: number): string {
@@ -62,45 +62,33 @@ export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick
       >
         {/* 象限の背景色 */}
         {/* 今すぐ対応（重要度高・緊急度高） */}
-        <rect x={xScale(2.5)} y={yScale(5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#fef3c7" opacity="0.3" />
+        <rect x={xScale(2)} y={yScale(4)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#fef3c7" opacity="0.3" />
         {/* 計画する（重要度高・緊急度低） */}
-        <rect x={xScale(0)} y={yScale(5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dbeafe" opacity="0.3" />
+        <rect x={xScale(0)} y={yScale(4)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dbeafe" opacity="0.3" />
         {/* 委任する（重要度低・緊急度高） */}
-        <rect x={xScale(2.5)} y={yScale(2.5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dcfce7" opacity="0.3" />
+        <rect x={xScale(2)} y={yScale(2)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dcfce7" opacity="0.3" />
         {/* 保留・低優先（重要度低・緊急度低） */}
-        <rect x={xScale(0)} y={yScale(2.5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#f3f4f6" opacity="0.5" />
+        <rect x={xScale(0)} y={yScale(2)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#f3f4f6" opacity="0.5" />
 
         {/* グリッドの枠線 */}
-        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(0)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
-        <line x1={xScale(0)} y1={yScale(5)} x2={xScale(5)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
-        <line x1={xScale(5)} y1={yScale(0)} x2={xScale(5)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
-        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(5)} y2={yScale(0)} stroke="#e5e7eb" strokeWidth="1" />
+        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(0)} y2={yScale(4)} stroke="#e5e7eb" strokeWidth="1" />
+        <line x1={xScale(0)} y1={yScale(4)} x2={xScale(4)} y2={yScale(4)} stroke="#e5e7eb" strokeWidth="1" />
+        <line x1={xScale(4)} y1={yScale(0)} x2={xScale(4)} y2={yScale(4)} stroke="#e5e7eb" strokeWidth="1" />
+        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(4)} y2={yScale(0)} stroke="#e5e7eb" strokeWidth="1" />
 
         {/* 中央の分割線（点線） */}
-        <line x1={xScale(2.5)} y1={yScale(0)} x2={xScale(2.5)} y2={yScale(5)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
-        <line x1={xScale(0)} y1={yScale(2.5)} x2={xScale(5)} y2={yScale(2.5)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
+        <line x1={xScale(2)} y1={yScale(0)} x2={xScale(2)} y2={yScale(4)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
+        <line x1={xScale(0)} y1={yScale(2)} x2={xScale(4)} y2={yScale(2)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
 
         {/* 軸ラベル */}
-        <text x={xScale(2.5)} y={PADDING - 20} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
+        <text x={xScale(2)} y={PADDING - 20} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
           重要度
         </text>
-        <text x={PADDING - 30} y={yScale(2.5) + 5} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
-          緊急度
+        <text x={PADDING - 30} y={yScale(2) + 5} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
+          優先度
         </text>
 
-        {/* 象限ラベル */}
-        <text x={xScale(3.75)} y={yScale(4.2)} textAnchor="middle" className="text-sm font-bold fill-amber-700 opacity-60">
-          今すぐ対応
-        </text>
-        <text x={xScale(1.25)} y={yScale(4.2)} textAnchor="middle" className="text-sm font-bold fill-blue-700 opacity-60">
-          計画する
-        </text>
-        <text x={xScale(3.75)} y={yScale(1.3)} textAnchor="middle" className="text-sm font-bold fill-green-700 opacity-60">
-          委任する
-        </text>
-        <text x={xScale(1.25)} y={yScale(1.3)} textAnchor="middle" className="text-sm font-bold fill-slate-600 opacity-40">
-          保留・低優先
-        </text>
+
 
         {/* タスクの点をプロット */}
         {(() => {

@@ -12,7 +12,7 @@ import {
 function ScoreDots({ value, color }: { value: number; color: string }) {
   return (
     <span className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((i) => (
+      {[1, 2, 3, 4].map((i) => (
         <span key={i} className={`w-2 h-2 rounded-full ${i <= value ? color : 'bg-slate-200'}`} />
       ))}
     </span>
@@ -139,12 +139,12 @@ export default function TaskDetailPanel({
           </span>
         </div>
 
-        {/* 優先度スコア */}
+        {/* 総合優先度 */}
         <div>
-          <p className="text-xs font-medium text-slate-500 mb-2">優先度</p>
+          <p className="text-xs font-medium text-slate-500 mb-2">総合優先度</p>
           <div className={`px-3 py-2 rounded-lg ${getPriorityColor(priority)}`}>
             <p className="text-sm font-semibold">{getPriorityLabel(priority)}</p>
-            <p className="text-xs opacity-75">スコア：{priority.toFixed(1)}</p>
+            <p className="text-xs opacity-75">優先スコア：{priority.toFixed(1)}</p>
           </div>
         </div>
 
@@ -240,14 +240,14 @@ export default function TaskDetailPanel({
           )}
         </div>
 
-        {/* 重要度・緊急度 */}
+        {/* 重要度・優先度 */}
         <div className="space-y-4 pt-2 border-t border-slate-200">
           <div>
             <p className="text-xs font-medium text-slate-500 mb-2">重要度</p>
             <ScoreDots value={task.importance} color="bg-blue-500" />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 mb-2">緊急度</p>
+            <p className="text-xs font-medium text-slate-500 mb-2">優先度</p>
             <ScoreDots value={task.urgency} color="bg-amber-500" />
           </div>
         </div>
