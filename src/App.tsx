@@ -11,6 +11,7 @@ export default function App() {
   const addTask = useTaskStore((s) => s.addTask);
   const completeTask = useTaskStore((s) => s.completeTask);
   const deleteTask = useTaskStore((s) => s.deleteTask);
+  const updateTask = useTaskStore((s) => s.updateTask);
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -134,6 +135,7 @@ export default function App() {
           onClose={() => setSelectedTaskId(null)}
           onComplete={completeTask}
           onDelete={deleteTask}
+          onUpdate={updateTask}
         />
       </div>
 

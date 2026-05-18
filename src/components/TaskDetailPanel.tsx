@@ -1,6 +1,12 @@
+import { useState, useEffect } from 'react';
 import { X, CheckCircle2, Trash2, Calendar, AlertTriangle } from 'lucide-react';
 import type { Task } from '../types';
 import { calculatePriorityScore, calculateDaysUntilDue, isOverdue } from '../utils';
+import {
+  initGoogleClient,
+  requestAccessToken,
+  syncTaskToGoogleCalendar,
+} from '../utils/googleCalendar';
 
 // 重要度・緊急度を点で視覚化するコンポーネント
 function ScoreDots({ value, color }: { value: number; color: string }) {
@@ -18,14 +24,58 @@ interface Props {
   onClose: () => void;
   onComplete: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  onUpdate: (taskId: string, updates: Partial<Task>) => void;
 }
 
-export default function TaskDetailPanel({ task, onClose, onComplete, onDelete }: Props) {
+export default function TaskDetailPanel({
+  task,
+  onClose,
+  onComplete,
+  onDelete,
+  onUpdate,
+}: Props) {
   if (!task) return null;
 
   const priority = calculatePriorityScore(task);
   const daysUntilDue = calculateDaysUntilDue(task.dueDate);
   const isTaskOverdue = isOverdue(task);
+
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // OAuthの初期設定
+  useEffect(() => {
+    initGoogleClient((token) => {
+      setAccessToken(token);
+      localStorage.setItem('google_access_token', token);
+      triggerSync(token);
+    });
+
+    const savedToken = localStorage.getItem('google_access_token');
+    if (savedToken) {
+      setAccessToken(savedToken);
+    }
+  }, [task.id]);
+
+  const triggerSync = async (token: string) => {
+    setIsSyncing(true);
+    const eventId = await syncTaskToGoogleCalendar(token, task);
+    setIsSyncing(false);
+    if (eventId) {
+      onUpdate(task.id, { googleEventId: eventId });
+      alert('Googleカレンダーに同期しました！');
+    } else {
+      alert('カレンダーの同期に失敗しました。再ログインをお試しください。');
+    }
+  };
+
+  const handleGoogleSync = () => {
+    if (!accessToken) {
+      requestAccessToken();
+    } else {
+      triggerSync(accessToken);
+    }
+  };
 
   // 優先度スコアから日本語ラベルを返す
   const getPriorityLabel = (score: number) => {
@@ -84,26 +134,75 @@ export default function TaskDetailPanel({ task, onClose, onComplete, onDelete }:
           </div>
         </div>
 
-        {/* 期日 */}
-        <div>
-          <p className="text-xs font-medium text-slate-500 mb-2">期日</p>
-          <div className="flex items-center gap-2 text-sm text-slate-700">
-            <Calendar size={16} className={isTaskOverdue ? 'text-red-500' : 'text-slate-400'} />
-            <span className={isTaskOverdue ? 'text-red-600 font-medium' : ''}>{task.dueDate}</span>
+        {/* 期日・時間（編集可能） */}
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-medium text-slate-500 mb-2">期日の設定</p>
+            <div className="flex items-center gap-2">
+              <Calendar size={16} className={isTaskOverdue ? 'text-red-500' : 'text-slate-400'} />
+              <input
+                type="date"
+                value={task.dueDate}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onUpdate(task.id, { dueDate: e.target.value });
+                  }
+                }}
+                className="bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full"
+              />
+            </div>
+            {daysUntilDue < 0 ? (
+              <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                <AlertTriangle size={12} /> {Math.abs(daysUntilDue)} 日超過しています
+              </p>
+            ) : daysUntilDue === 0 ? (
+              <p className="text-xs text-amber-600 mt-1">本日が期日です</p>
+            ) : (
+              <p className="text-xs text-slate-500 mt-1">残り {daysUntilDue} 日</p>
+            )}
           </div>
-          {daysUntilDue < 0 ? (
-            <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-              <AlertTriangle size={12} /> {Math.abs(daysUntilDue)} 日超過しています
+
+          <div>
+            <p className="text-xs font-medium text-slate-500 mb-2">時間の設定</p>
+            <input
+              type="time"
+              value={task.dueTime || ''}
+              onChange={(e) => {
+                onUpdate(task.id, { dueTime: e.target.value || undefined });
+              }}
+              className="bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full"
+            />
+          </div>
+        </div>
+
+        {/* Googleカレンダー連携 */}
+        <div className="pt-2 border-t border-slate-200">
+          <p className="text-xs font-medium text-slate-500 mb-2">カレンダー同期</p>
+          <button
+            onClick={handleGoogleSync}
+            disabled={isSyncing}
+            className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium text-sm transition-colors ${
+              task.googleEventId
+                ? 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+            }`}
+          >
+            <span className="text-base">📅</span>
+            {isSyncing
+              ? '同期中...'
+              : task.googleEventId
+                ? 'Googleカレンダーを更新'
+                : 'Googleカレンダーに追加'}
+          </button>
+          {task.googleEventId && (
+            <p className="text-[10px] text-green-600 mt-1 text-center font-medium">
+              ✓ カレンダー連携済み
             </p>
-          ) : daysUntilDue === 0 ? (
-            <p className="text-xs text-amber-600 mt-1">本日が期日です</p>
-          ) : (
-            <p className="text-xs text-slate-500 mt-1">残り {daysUntilDue} 日</p>
           )}
         </div>
 
         {/* 重要度・緊急度 */}
-        <div className="space-y-4">
+        <div className="space-y-4 pt-2 border-t border-slate-200">
           <div>
             <p className="text-xs font-medium text-slate-500 mb-2">重要度</p>
             <ScoreDots value={task.importance} color="bg-blue-500" />

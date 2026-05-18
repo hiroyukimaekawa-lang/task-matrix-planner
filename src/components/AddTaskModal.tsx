@@ -6,10 +6,11 @@ import { calculateUrgency } from '../utils';
 type FormData = {
   title: string;
   dueDate: string;
+  dueTime: string;
   importance: number;
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', importance: 3 };
+const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 3 };
 
 interface Props {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
     onAdd({
       title: form.title.trim(),
       dueDate: form.dueDate,
+      dueTime: form.dueTime || undefined,
       importance: form.importance as Task['importance'],
       urgency: calculateUrgency(form.dueDate, form.importance) as Task['urgency'],
     });
@@ -91,17 +93,30 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
               />
             </div>
 
-            {/* 期日 */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                期日
-              </label>
-              <input
-                type="date"
-                value={form.dueDate}
-                onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              />
+            {/* 期日と時間 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  期日
+                </label>
+                <input
+                  type="date"
+                  value={form.dueDate}
+                  onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  時間 (任意)
+                </label>
+                <input
+                  type="time"
+                  value={form.dueTime}
+                  onChange={(e) => setForm((f) => ({ ...f, dueTime: e.target.value }))}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                />
+              </div>
             </div>
 
             {/* 重要度スライダー */}
