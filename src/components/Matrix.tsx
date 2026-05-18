@@ -34,7 +34,19 @@ interface Props {
 export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick }: Props) {
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
 
-  const todoTasks = tasks.filter((t) => t.status === 'todo');
+  const todoTasks = tasks
+    .filter((t) => t.status === 'todo')
+    .sort((a, b) => {
+      const scoreA = calculatePriorityScore(a);
+      const scoreB = calculatePriorityScore(b);
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+      if (b.importance !== a.importance) {
+        return b.importance - a.importance;
+      }
+      return a.dueDate.localeCompare(b.dueDate);
+    });
 
   // 座標スケール変換（値 → SVGピクセル）
   const xScale = (value: number) => PADDING + (value / SCALE) * GRAPH_SIZE;

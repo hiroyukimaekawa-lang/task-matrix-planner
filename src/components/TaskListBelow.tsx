@@ -24,11 +24,17 @@ export default function TaskListBelow({ tasks, onSelectTask, onComplete, onDelet
   const todoTasks = tasks
     .filter((t) => t.status === 'todo')
     .sort((a, b) => {
-      // 1. 重要度が高いものを優先（降順）
+      const scoreA = calculatePriorityScore(a);
+      const scoreB = calculatePriorityScore(b);
+      // 1. 優先度スコアが高いタスク（重要度が高く・期日が今日に近い＝右上）を最優先（降順）
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+      // 2. スコアが同じ場合は重要度が高いものを優先（降順）
       if (b.importance !== a.importance) {
         return b.importance - a.importance;
       }
-      // 2. 重要度が同じなら期日が近い（早い）ものを優先（昇順）
+      // 3. 重要度も同じなら期日が近い（早い）ものを優先（昇順）
       return a.dueDate.localeCompare(b.dueDate);
     });
   const completedTasks = tasks.filter((t) => t.status === 'completed');
