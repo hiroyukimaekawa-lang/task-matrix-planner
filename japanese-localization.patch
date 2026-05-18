@@ -1,0 +1,1557 @@
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/index.html task-matrix-planner-ja/index.html
+--- task-matrix-planner/index.html	2026-05-18 03:24:39.319925783 +0000
++++ task-matrix-planner-ja/index.html	2026-05-18 03:29:57.685546356 +0000
+@@ -1,10 +1,10 @@
+ <!doctype html>
+-<html lang="en">
++<html lang="ja">
+   <head>
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <title>Task Matrix Planner MVP</title>
++    <title>タスクマトリクス プランナー</title>
+     <meta property="og:image" content="https://bolt.new/static/og_default.png" />
+     <meta name="twitter:card" content="summary_large_image" />
+     <meta name="twitter:image" content="https://bolt.new/static/og_default.png" />
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/App.tsx task-matrix-planner-ja/src/App.tsx
+--- task-matrix-planner/src/App.tsx	2026-05-18 03:24:39.319925783 +0000
++++ task-matrix-planner-ja/src/App.tsx	2026-05-18 03:25:40.602212211 +0000
+@@ -23,30 +23,30 @@
+ 
+   return (
+     <div className="min-h-screen bg-white">
+-      {/* Header */}
++      {/* ヘッダー */}
+       <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+           <div>
+-            <h1 className="text-2xl font-bold text-slate-900">Task Matrix</h1>
+-            <p className="text-sm text-slate-500 mt-0.5">Prioritize with clarity</p>
++            <h1 className="text-2xl font-bold text-slate-900">タスクマトリクス</h1>
++            <p className="text-sm text-slate-500 mt-0.5">優先順位を明確に管理する</p>
+           </div>
+           <div className="text-sm text-slate-600">
+             <span className="font-semibold text-slate-900 text-lg">
+               {tasks.filter((t) => t.status === 'todo').length}
+             </span>
+-            <span className="text-slate-500 ml-2">active tasks</span>
++            <span className="text-slate-500 ml-2">件の未完了タスク</span>
+           </div>
+         </div>
+       </header>
+ 
+-      {/* Main Content */}
++      {/* メインコンテンツ */}
+       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+-        {/* Top Alerts & Metrics */}
++        {/* ダッシュボードメトリクス */}
+         <div className="mb-8">
+           <DashboardMetrics tasks={tasks} />
+         </div>
+ 
+-        {/* Large Full-Width Matrix */}
++        {/* マトリクス（全幅表示） */}
+         <div className="mb-12">
+           <Matrix
+             tasks={tasks}
+@@ -56,7 +56,7 @@
+           />
+         </div>
+ 
+-        {/* Task List Below */}
++        {/* タスクリスト */}
+         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+           <TaskListBelow
+             tasks={tasks}
+@@ -67,14 +67,14 @@
+         </div>
+       </main>
+ 
+-      {/* Modals */}
++      {/* タスク追加モーダル */}
+       <AddTaskModal
+         isOpen={isAddModalOpen}
+         onClose={() => setIsAddModalOpen(false)}
+         onAdd={handleAddTask}
+       />
+ 
+-      {/* Task Detail Panel */}
++      {/* タスク詳細パネル（右スライドイン） */}
+       <div
+         className={`fixed inset-y-0 right-0 transition-transform duration-300 z-50 ${
+           selectedTask ? 'translate-x-0' : 'translate-x-full'
+@@ -88,7 +88,7 @@
+         />
+       </div>
+ 
+-      {/* Overlay */}
++      {/* オーバーレイ */}
+       {selectedTask && (
+         <div
+           className="fixed inset-0 bg-black/10 z-40 transition-opacity"
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/AddTaskModal.tsx task-matrix-planner-ja/src/components/AddTaskModal.tsx
+--- task-matrix-planner/src/components/AddTaskModal.tsx	2026-05-18 03:24:39.322849933 +0000
++++ task-matrix-planner-ja/src/components/AddTaskModal.tsx	2026-05-18 03:26:55.820718474 +0000
+@@ -23,12 +23,14 @@
+ 
+   const handleSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
++    // バリデーション：タイトルが未入力の場合
+     if (!form.title.trim()) {
+-      setError('Title is required.');
++      setError('タスク名を入力してください。');
+       return;
+     }
++    // バリデーション：期日が未選択の場合
+     if (!form.dueDate) {
+-      setError('Due date is required.');
++      setError('期日を選択してください。');
+       return;
+     }
+ 
+@@ -54,45 +56,45 @@
+ 
+   return (
+     <>
+-      {/* Backdrop */}
+-      <div
+-        className="fixed inset-0 bg-black/20 z-40 transition-opacity"
+-        onClick={handleClose}
+-      />
++      {/* バックドロップ */}
++      <div className="fixed inset-0 bg-black/20 z-40 transition-opacity" onClick={handleClose} />
+ 
+-      {/* Modal */}
++      {/* モーダル本体 */}
+       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+-          {/* Header */}
++          {/* モーダルヘッダー */}
+           <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-5 flex items-center justify-between">
+-            <h2 className="text-lg font-semibold text-slate-800">Create New Task</h2>
++            <h2 className="text-lg font-semibold text-slate-800">新しいタスクを作成</h2>
+             <button
+               onClick={handleClose}
+               className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
++              aria-label="閉じる"
+             >
+               <X size={20} />
+             </button>
+           </div>
+ 
+-          {/* Content */}
++          {/* フォーム */}
+           <form onSubmit={handleSubmit} className="p-6 space-y-5">
++            {/* タスク名 */}
+             <div>
+               <label className="block text-sm font-medium text-slate-700 mb-2">
+-                Task Title
++                タスク名
+               </label>
+               <input
+                 type="text"
+                 value={form.title}
+                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+-                placeholder="e.g., Review Q2 budget"
++                placeholder="例：Q2予算レビューを完了させる"
+                 className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                 autoFocus
+               />
+             </div>
+ 
++            {/* 期日 */}
+             <div>
+               <label className="block text-sm font-medium text-slate-700 mb-2">
+-                Due Date
++                期日
+               </label>
+               <input
+                 type="date"
+@@ -102,9 +104,10 @@
+               />
+             </div>
+ 
++            {/* 重要度スライダー */}
+             <div>
+               <div className="flex items-center justify-between mb-3">
+-                <label className="text-sm font-medium text-slate-700">Importance</label>
++                <label className="text-sm font-medium text-slate-700">重要度</label>
+                 <span className="text-sm font-semibold text-slate-600">{form.importance}/5</span>
+               </div>
+               <div className="flex gap-1.5">
+@@ -125,9 +128,10 @@
+               </div>
+             </div>
+ 
++            {/* 緊急度スライダー */}
+             <div>
+               <div className="flex items-center justify-between mb-3">
+-                <label className="text-sm font-medium text-slate-700">Urgency</label>
++                <label className="text-sm font-medium text-slate-700">緊急度</label>
+                 <span className="text-sm font-semibold text-slate-600">{form.urgency}/5</span>
+               </div>
+               <div className="flex gap-1.5">
+@@ -148,6 +152,7 @@
+               </div>
+             </div>
+ 
++            {/* エラーメッセージ */}
+             {error && (
+               <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                 <AlertTriangle size={16} />
+@@ -155,19 +160,20 @@
+               </div>
+             )}
+ 
++            {/* アクションボタン */}
+             <div className="flex gap-3 pt-2">
+               <button
+                 type="submit"
+                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+               >
+-                Create Task
++                タスクを作成
+               </button>
+               <button
+                 type="button"
+                 onClick={handleClose}
+                 className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-lg text-sm transition-colors"
+               >
+-                Cancel
++                キャンセル
+               </button>
+             </div>
+           </form>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/DashboardMetrics.tsx task-matrix-planner-ja/src/components/DashboardMetrics.tsx
+--- task-matrix-planner/src/components/DashboardMetrics.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/DashboardMetrics.tsx	2026-05-18 03:25:58.932715093 +0000
+@@ -17,11 +17,12 @@
+     return days >= 0 && days <= 7;
+   });
+ 
++  // ワークロード警告の表示条件：今週のタスクが5件超 or 期限切れタスクあり
+   const showWorkloadWarning = upcomingThisWeek.length > 5 || overdue.length > 0;
+ 
+   const metrics = [
+     {
+-      label: 'Overdue',
++      label: '期限切れ',
+       value: overdue.length,
+       icon: AlertTriangle,
+       color: 'text-red-600 bg-red-50',
+@@ -29,7 +30,7 @@
+       highlight: overdue.length > 0,
+     },
+     {
+-      label: "Today's Tasks",
++      label: '本日のタスク',
+       value: todayTasks.length,
+       icon: Clock,
+       color: 'text-amber-600 bg-amber-50',
+@@ -37,7 +38,7 @@
+       highlight: todayTasks.length > 0,
+     },
+     {
+-      label: 'Critical Priority',
++      label: '重大優先度',
+       value: critical.length,
+       icon: TrendingUp,
+       color: 'text-orange-600 bg-orange-50',
+@@ -45,7 +46,7 @@
+       highlight: critical.length > 0,
+     },
+     {
+-      label: 'This Week',
++      label: '今週の予定',
+       value: upcomingThisWeek.length,
+       icon: CheckCircle2,
+       color: 'text-blue-600 bg-blue-50',
+@@ -78,24 +79,26 @@
+         })}
+       </div>
+ 
++      {/* ワークロード警告バナー */}
+       {showWorkloadWarning && (
+         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+           <div className="flex items-start gap-3">
+             <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
+             <div>
+-              <p className="text-sm font-semibold text-amber-900">Workload Alert</p>
++              <p className="text-sm font-semibold text-amber-900">作業負荷の警告</p>
+               <p className="text-xs text-amber-700 mt-1">
+-                {overdue.length > 0 && `${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}.`}{' '}
+-                {upcomingThisWeek.length > 5 && `${upcomingThisWeek.length} tasks due this week.`}
++                {overdue.length > 0 && `${overdue.length}件のタスクが期限切れです。`}{' '}
++                {upcomingThisWeek.length > 5 && `今週中に${upcomingThisWeek.length}件のタスクが期限を迎えます。`}
+               </p>
+             </div>
+           </div>
+         </div>
+       )}
+ 
++      {/* 重大優先度タスク一覧 */}
+       {critical.length > 0 && (
+         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+-          <p className="text-xs font-semibold text-red-900 mb-3">Critical Priority Tasks</p>
++          <p className="text-xs font-semibold text-red-900 mb-3">重大優先度のタスク</p>
+           <div className="space-y-2">
+             {critical.slice(0, 3).map((task) => (
+               <div key={task.id} className="text-xs text-red-800 bg-white rounded px-2.5 py-1.5">
+@@ -103,7 +106,7 @@
+               </div>
+             ))}
+             {critical.length > 3 && (
+-              <p className="text-xs text-red-700 font-medium">+{critical.length - 3} more</p>
++              <p className="text-xs text-red-700 font-medium">他 {critical.length - 3} 件</p>
+             )}
+           </div>
+         </div>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/Matrix.tsx task-matrix-planner-ja/src/components/Matrix.tsx
+--- task-matrix-planner/src/components/Matrix.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/Matrix.tsx	2026-05-18 03:26:32.604717094 +0000
+@@ -6,6 +6,7 @@
+ const GRAPH_SIZE = 500;
+ const SCALE = 5;
+ 
++// タスクの色を優先度・状態に応じて決定する
+ function getTaskColor(task: Task, priority: number): string {
+   if (task.status === 'completed') return '#d1d5db';
+   if (isOverdue(task)) return '#ef4444';
+@@ -14,6 +15,7 @@
+   return '#3b82f6';
+ }
+ 
++// タスク円のサイズを優先度・状態に応じて決定する
+ function getTaskRadius(task: Task, priority: number): number {
+   if (task.status === 'completed') return 12;
+   if (isOverdue(task)) return 20;
+@@ -34,6 +36,7 @@
+ 
+   const todoTasks = tasks.filter((t) => t.status === 'todo');
+ 
++  // 座標スケール変換（値 → SVGピクセル）
+   const xScale = (value: number) => PADDING + (value / SCALE) * GRAPH_SIZE;
+   const yScale = (value: number) => PADDING + GRAPH_SIZE - (value / SCALE) * GRAPH_SIZE;
+ 
+@@ -45,158 +48,49 @@
+         className="w-full"
+         viewBox={`0 0 ${PADDING * 2 + GRAPH_SIZE} ${PADDING * 2 + GRAPH_SIZE}`}
+       >
+-        {/* Background quadrants */}
+-        {/* Do Now - Top Right */}
+-        <rect
+-          x={xScale(2.5)}
+-          y={yScale(5)}
+-          width={GRAPH_SIZE / 2}
+-          height={GRAPH_SIZE / 2}
+-          fill="#fef3c7"
+-          opacity="0.3"
+-        />
+-        {/* Schedule - Top Left */}
+-        <rect
+-          x={xScale(0)}
+-          y={yScale(5)}
+-          width={GRAPH_SIZE / 2}
+-          height={GRAPH_SIZE / 2}
+-          fill="#dbeafe"
+-          opacity="0.3"
+-        />
+-        {/* Quick Tasks - Bottom Right */}
+-        <rect
+-          x={xScale(2.5)}
+-          y={yScale(2.5)}
+-          width={GRAPH_SIZE / 2}
+-          height={GRAPH_SIZE / 2}
+-          fill="#dcfce7"
+-          opacity="0.3"
+-        />
+-        {/* Low Priority - Bottom Left */}
+-        <rect
+-          x={xScale(0)}
+-          y={yScale(2.5)}
+-          width={GRAPH_SIZE / 2}
+-          height={GRAPH_SIZE / 2}
+-          fill="#f3f4f6"
+-          opacity="0.5"
+-        />
+-
+-        {/* Grid lines */}
+-        <line
+-          x1={xScale(0)}
+-          y1={yScale(0)}
+-          x2={xScale(0)}
+-          y2={yScale(5)}
+-          stroke="#e5e7eb"
+-          strokeWidth="1"
+-        />
+-        <line
+-          x1={xScale(0)}
+-          y1={yScale(5)}
+-          x2={xScale(5)}
+-          y2={yScale(5)}
+-          stroke="#e5e7eb"
+-          strokeWidth="1"
+-        />
+-        <line
+-          x1={xScale(5)}
+-          y1={yScale(0)}
+-          x2={xScale(5)}
+-          y2={yScale(5)}
+-          stroke="#e5e7eb"
+-          strokeWidth="1"
+-        />
+-        <line
+-          x1={xScale(0)}
+-          y1={yScale(0)}
+-          x2={xScale(5)}
+-          y2={yScale(0)}
+-          stroke="#e5e7eb"
+-          strokeWidth="1"
+-        />
+-
+-        {/* Center dividing lines */}
+-        <line
+-          x1={xScale(2.5)}
+-          y1={yScale(0)}
+-          x2={xScale(2.5)}
+-          y2={yScale(5)}
+-          stroke="#cbd5e1"
+-          strokeWidth="2"
+-          strokeDasharray="4,4"
+-        />
+-        <line
+-          x1={xScale(0)}
+-          y1={yScale(2.5)}
+-          x2={xScale(5)}
+-          y2={yScale(2.5)}
+-          stroke="#cbd5e1"
+-          strokeWidth="2"
+-          strokeDasharray="4,4"
+-        />
+-
+-        {/* Axis labels */}
+-        <text
+-          x={xScale(2.5)}
+-          y={PADDING - 20}
+-          textAnchor="middle"
+-          className="text-xs font-semibold fill-slate-600"
+-        >
+-          IMPORTANCE
++        {/* 象限の背景色 */}
++        {/* 今すぐ対応（重要度高・緊急度高） */}
++        <rect x={xScale(2.5)} y={yScale(5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#fef3c7" opacity="0.3" />
++        {/* 計画する（重要度高・緊急度低） */}
++        <rect x={xScale(0)} y={yScale(5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dbeafe" opacity="0.3" />
++        {/* 委任する（重要度低・緊急度高） */}
++        <rect x={xScale(2.5)} y={yScale(2.5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#dcfce7" opacity="0.3" />
++        {/* 保留・低優先（重要度低・緊急度低） */}
++        <rect x={xScale(0)} y={yScale(2.5)} width={GRAPH_SIZE / 2} height={GRAPH_SIZE / 2} fill="#f3f4f6" opacity="0.5" />
++
++        {/* グリッドの枠線 */}
++        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(0)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
++        <line x1={xScale(0)} y1={yScale(5)} x2={xScale(5)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
++        <line x1={xScale(5)} y1={yScale(0)} x2={xScale(5)} y2={yScale(5)} stroke="#e5e7eb" strokeWidth="1" />
++        <line x1={xScale(0)} y1={yScale(0)} x2={xScale(5)} y2={yScale(0)} stroke="#e5e7eb" strokeWidth="1" />
++
++        {/* 中央の分割線（点線） */}
++        <line x1={xScale(2.5)} y1={yScale(0)} x2={xScale(2.5)} y2={yScale(5)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
++        <line x1={xScale(0)} y1={yScale(2.5)} x2={xScale(5)} y2={yScale(2.5)} stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4,4" />
++
++        {/* 軸ラベル */}
++        <text x={xScale(2.5)} y={PADDING - 20} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
++          重要度
+         </text>
+-        <text
+-          x={PADDING - 30}
+-          y={yScale(2.5) + 5}
+-          textAnchor="middle"
+-          className="text-xs font-semibold fill-slate-600"
+-        >
+-          URGENCY
++        <text x={PADDING - 30} y={yScale(2.5) + 5} textAnchor="middle" className="text-xs font-semibold fill-slate-600">
++          緊急度
+         </text>
+ 
+-        {/* Quadrant labels */}
+-        {/* Do Now */}
+-        <text
+-          x={xScale(3.75)}
+-          y={yScale(4.2)}
+-          textAnchor="middle"
+-          className="text-sm font-bold fill-amber-700 opacity-60"
+-        >
+-          DO NOW
++        {/* 象限ラベル */}
++        <text x={xScale(3.75)} y={yScale(4.2)} textAnchor="middle" className="text-sm font-bold fill-amber-700 opacity-60">
++          今すぐ対応
+         </text>
+-
+-        {/* Schedule */}
+-        <text
+-          x={xScale(1.25)}
+-          y={yScale(4.2)}
+-          textAnchor="middle"
+-          className="text-sm font-bold fill-blue-700 opacity-60"
+-        >
+-          SCHEDULE
++        <text x={xScale(1.25)} y={yScale(4.2)} textAnchor="middle" className="text-sm font-bold fill-blue-700 opacity-60">
++          計画する
+         </text>
+-
+-        {/* Quick Tasks */}
+-        <text
+-          x={xScale(3.75)}
+-          y={yScale(1.3)}
+-          textAnchor="middle"
+-          className="text-sm font-bold fill-green-700 opacity-60"
+-        >
+-          QUICK TASKS
++        <text x={xScale(3.75)} y={yScale(1.3)} textAnchor="middle" className="text-sm font-bold fill-green-700 opacity-60">
++          委任する
+         </text>
+-
+-        {/* Low Priority */}
+-        <text
+-          x={xScale(1.25)}
+-          y={yScale(1.3)}
+-          textAnchor="middle"
+-          className="text-sm font-bold fill-slate-600 opacity-40"
+-        >
+-          LOW PRIORITY
++        <text x={xScale(1.25)} y={yScale(1.3)} textAnchor="middle" className="text-sm font-bold fill-slate-600 opacity-40">
++          保留・低優先
+         </text>
+ 
+-        {/* Task points */}
++        {/* タスクの点をプロット */}
+         {todoTasks.map((task, index) => {
+           const x = xScale(task.urgency);
+           const y = yScale(task.importance);
+@@ -208,56 +102,31 @@
+ 
+           return (
+             <g key={task.id}>
+-              {/* Glow effect for high priority */}
++              {/* 高優先度タスクのグロー（パルスアニメーション） */}
+               {(isOverdue(task) || priority >= 80) && (
+-                <circle
+-                  cx={x}
+-                  cy={y}
+-                  r={radius + 8}
+-                  fill={color}
+-                  opacity="0.15"
+-                  className="animate-pulse"
+-                />
++                <circle cx={x} cy={y} r={radius + 8} fill={color} opacity="0.15" className="animate-pulse" />
+               )}
+ 
+-              {/* Selection ring */}
++              {/* 選択中タスクのリング */}
+               {isSelected && (
+-                <circle
+-                  cx={x}
+-                  cy={y}
+-                  r={radius + 6}
+-                  fill="none"
+-                  stroke="#3b82f6"
+-                  strokeWidth="3"
+-                  strokeDasharray="4,2"
+-                />
++                <circle cx={x} cy={y} r={radius + 6} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4,2" />
+               )}
+ 
+-              {/* Main point */}
++              {/* タスク本体の円 */}
+               <circle
+                 cx={x}
+                 cy={y}
+                 r={radius}
+                 fill={color}
+-                className={`cursor-pointer transition-all duration-200 ${
+-                  isHovered || isSelected ? 'filter drop-shadow-lg' : ''
+-                }`}
+-                style={{
+-                  filter: isHovered || isSelected ? 'drop-shadow(0 0 8px rgba(0,0,0,0.2))' : 'none',
+-                }}
++                className={`cursor-pointer transition-all duration-200 ${isHovered || isSelected ? 'filter drop-shadow-lg' : ''}`}
++                style={{ filter: isHovered || isSelected ? 'drop-shadow(0 0 8px rgba(0,0,0,0.2))' : 'none' }}
+                 onClick={() => onSelectTask(task.id)}
+                 onMouseEnter={() => setHoveredTaskId(task.id)}
+                 onMouseLeave={() => setHoveredTaskId(null)}
+               />
+ 
+-              {/* Task number label */}
+-              <text
+-                x={x}
+-                y={y}
+-                textAnchor="middle"
+-                dominantBaseline="middle"
+-                className="text-xs font-bold fill-white pointer-events-none"
+-              >
++              {/* タスク番号ラベル */}
++              <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-white pointer-events-none">
+                 {String(index + 1).padStart(2, '0')}
+               </text>
+             </g>
+@@ -265,26 +134,27 @@
+         })}
+       </svg>
+ 
+-      {/* Legend */}
++      {/* 凡例 */}
+       <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-4 text-xs text-slate-600">
+         <div className="flex items-center gap-2">
+           <div className="w-3 h-3 rounded-full bg-red-600" />
+-          <span>Overdue</span>
++          <span>期限切れ</span>
+         </div>
+         <div className="flex items-center gap-2">
+           <div className="w-3 h-3 rounded-full bg-orange-500" />
+-          <span>High Priority</span>
++          <span>高優先度</span>
+         </div>
+         <div className="flex items-center gap-2">
+           <div className="w-3 h-3 rounded-full bg-blue-500" />
+-          <span>Normal</span>
++          <span>通常</span>
+         </div>
+       </div>
+ 
+-      {/* Floating Add Button */}
++      {/* タスク追加フローティングボタン */}
+       <button
+         onClick={onAddClick}
+         className="absolute top-6 left-6 w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-xl hover:scale-110 z-10"
++        title="タスクを追加"
+       >
+         +
+       </button>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/QuickCreateForm.tsx task-matrix-planner-ja/src/components/QuickCreateForm.tsx
+--- task-matrix-planner/src/components/QuickCreateForm.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/QuickCreateForm.tsx	2026-05-18 03:29:57.664729284 +0000
+@@ -15,6 +15,7 @@
+   onAdd: (data: Omit<Task, 'id' | 'status' | 'createdAt'>) => void;
+ }
+ 
++// クイックタスク作成フォーム（インライン展開型）
+ export default function QuickCreateForm({ onAdd }: Props) {
+   const [form, setForm] = useState<FormData>(defaultForm);
+   const [expanded, setExpanded] = useState(false);
+@@ -22,12 +23,13 @@
+ 
+   const handleSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
++    // バリデーション：タイトルと期日の必須チェック
+     if (!form.title.trim()) {
+-      setError('Title is required.');
++      setError('タスク名を入力してください。');
+       return;
+     }
+     if (!form.dueDate) {
+-      setError('Due date is required.');
++      setError('期日を選択してください。');
+       return;
+     }
+ 
+@@ -45,25 +47,29 @@
+ 
+   return (
+     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
++      {/* 折りたたみ状態：ボタン表示 */}
+       {!expanded ? (
+         <button
+           onClick={() => setExpanded(true)}
+           className="w-full px-6 py-4 flex items-center justify-center gap-2 text-slate-600 hover:text-slate-800 hover:bg-slate-50 font-medium text-sm transition-colors"
+         >
+           <Plus size={18} />
+-          New Task
++          新しいタスクを追加
+         </button>
+       ) : (
++        /* 展開状態：入力フォーム */
+         <form onSubmit={handleSubmit} className="p-5 space-y-4">
++          {/* タスク名 */}
+           <input
+             type="text"
+             value={form.title}
+             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+-            placeholder="Task title"
++            placeholder="タスク名を入力"
+             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+             autoFocus
+           />
+ 
++          {/* 期日 */}
+           <input
+             type="date"
+             value={form.dueDate}
+@@ -71,9 +77,10 @@
+             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+           />
+ 
++          {/* 重要度 */}
+           <div className="space-y-2">
+             <div className="flex justify-between items-center">
+-              <label className="text-xs font-medium text-slate-600">Importance</label>
++              <label className="text-xs font-medium text-slate-600">重要度</label>
+               <span className="text-sm font-semibold text-slate-700">{form.importance}/5</span>
+             </div>
+             <div className="flex gap-1">
+@@ -83,9 +90,7 @@
+                   type="button"
+                   onClick={() => setForm((f) => ({ ...f, importance: i }))}
+                   className={`flex-1 py-1.5 rounded text-xs font-bold transition-colors ${
+-                    i <= form.importance
+-                      ? 'bg-blue-600 text-white'
+-                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
++                    i <= form.importance ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                   }`}
+                 >
+                   {i}
+@@ -94,9 +99,10 @@
+             </div>
+           </div>
+ 
++          {/* 緊急度 */}
+           <div className="space-y-2">
+             <div className="flex justify-between items-center">
+-              <label className="text-xs font-medium text-slate-600">Urgency</label>
++              <label className="text-xs font-medium text-slate-600">緊急度</label>
+               <span className="text-sm font-semibold text-slate-700">{form.urgency}/5</span>
+             </div>
+             <div className="flex gap-1">
+@@ -106,9 +112,7 @@
+                   type="button"
+                   onClick={() => setForm((f) => ({ ...f, urgency: i }))}
+                   className={`flex-1 py-1.5 rounded text-xs font-bold transition-colors ${
+-                    i <= form.urgency
+-                      ? 'bg-amber-500 text-white'
+-                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
++                    i <= form.urgency ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                   }`}
+                 >
+                   {i}
+@@ -117,6 +121,7 @@
+             </div>
+           </div>
+ 
++          {/* エラーメッセージ */}
+           {error && (
+             <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+               <AlertTriangle size={14} />
+@@ -124,22 +129,20 @@
+             </div>
+           )}
+ 
++          {/* 送信・キャンセルボタン */}
+           <div className="flex gap-2 pt-2">
+             <button
+               type="submit"
+               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+             >
+-              Add Task
++              追加する
+             </button>
+             <button
+               type="button"
+-              onClick={() => {
+-                setExpanded(false);
+-                setError('');
+-              }}
++              onClick={() => { setExpanded(false); setError(''); }}
+               className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-lg text-sm transition-colors"
+             >
+-              Cancel
++              キャンセル
+             </button>
+           </div>
+         </form>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/Sidebar.tsx task-matrix-planner-ja/src/components/Sidebar.tsx
+--- task-matrix-planner/src/components/Sidebar.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/Sidebar.tsx	2026-05-18 03:27:54.649784440 +0000
+@@ -7,10 +7,11 @@
+   onChange: (page: Page) => void;
+ }
+ 
++// ナビゲーション定義（日本語ラベル）
+ const nav: { id: Page; label: string; Icon: React.ElementType }[] = [
+-  { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+-  { id: 'tasks', label: 'Task List', Icon: ListTodo },
+-  { id: 'add', label: 'Add Task', Icon: PlusCircle },
++  { id: 'dashboard', label: 'ダッシュボード', Icon: LayoutDashboard },
++  { id: 'tasks', label: 'タスク一覧', Icon: ListTodo },
++  { id: 'add', label: 'タスクを追加', Icon: PlusCircle },
+ ];
+ 
+ export default function Sidebar({ current, onChange }: Props) {
+@@ -18,8 +19,8 @@
+     <aside className="w-56 shrink-0 bg-slate-900 min-h-screen flex flex-col">
+       <div className="px-6 py-5 border-b border-slate-700">
+         <h1 className="text-white font-semibold text-base leading-tight">
+-          Task Matrix<br />
+-          <span className="text-slate-400 font-normal text-sm">Planner</span>
++          タスクマトリクス<br />
++          <span className="text-slate-400 font-normal text-sm">プランナー</span>
+         </h1>
+       </div>
+       <nav className="flex-1 px-3 py-4 space-y-1">
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/TaskDetailPanel.tsx task-matrix-planner-ja/src/components/TaskDetailPanel.tsx
+--- task-matrix-planner/src/components/TaskDetailPanel.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/TaskDetailPanel.tsx	2026-05-18 03:27:20.432719937 +0000
+@@ -2,14 +2,12 @@
+ import type { Task } from '../types';
+ import { calculatePriorityScore, calculateDaysUntilDue, isOverdue } from '../utils';
+ 
++// 重要度・緊急度を点で視覚化するコンポーネント
+ function ScoreDots({ value, color }: { value: number; color: string }) {
+   return (
+     <span className="flex gap-1">
+       {[1, 2, 3, 4, 5].map((i) => (
+-        <span
+-          key={i}
+-          className={`w-2 h-2 rounded-full ${i <= value ? color : 'bg-slate-200'}`}
+-        />
++        <span key={i} className={`w-2 h-2 rounded-full ${i <= value ? color : 'bg-slate-200'}`} />
+       ))}
+     </span>
+   );
+@@ -29,12 +27,14 @@
+   const daysUntilDue = calculateDaysUntilDue(task.dueDate);
+   const isTaskOverdue = isOverdue(task);
+ 
++  // 優先度スコアから日本語ラベルを返す
+   const getPriorityLabel = (score: number) => {
+-    if (score >= 120) return 'Critical';
+-    if (score >= 80) return 'High';
+-    return 'Normal';
++    if (score >= 120) return '重大';
++    if (score >= 80) return '高';
++    return '通常';
+   };
+ 
++  // 優先度スコアに応じた背景色クラスを返す
+   const getPriorityColor = (score: number) => {
+     if (score >= 120) return 'text-red-600 bg-red-50';
+     if (score >= 80) return 'text-orange-600 bg-orange-50';
+@@ -43,87 +43,84 @@
+ 
+   return (
+     <div className="w-80 bg-white border-l border-slate-200 shadow-lg overflow-y-auto flex flex-col">
+-      {/* Header */}
++      {/* パネルヘッダー */}
+       <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-start justify-between">
+         <h2 className="text-lg font-semibold text-slate-800 flex-1">{task.title}</h2>
+         <button
+           onClick={onClose}
+           className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
++          aria-label="閉じる"
+         >
+           <X size={18} />
+         </button>
+       </div>
+ 
+-      {/* Content */}
++      {/* 詳細コンテンツ */}
+       <div className="flex-1 px-6 py-6 space-y-6">
+-        {/* Status */}
++        {/* ステータス */}
+         <div>
+-          <p className="text-xs font-medium text-slate-500 mb-2">Status</p>
++          <p className="text-xs font-medium text-slate-500 mb-2">ステータス</p>
+           <span
+             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
+-              task.status === 'completed'
+-                ? 'bg-green-100 text-green-700'
+-                : 'bg-blue-100 text-blue-700'
++              task.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+             }`}
+           >
+             {task.status === 'completed' ? (
+               <>
+-                <CheckCircle2 size={14} /> Completed
++                <CheckCircle2 size={14} /> 完了
+               </>
+             ) : (
+-              <>To Do</>
++              <>未完了</>
+             )}
+           </span>
+         </div>
+ 
+-        {/* Priority */}
++        {/* 優先度スコア */}
+         <div>
+-          <p className="text-xs font-medium text-slate-500 mb-2">Priority</p>
++          <p className="text-xs font-medium text-slate-500 mb-2">優先度</p>
+           <div className={`px-3 py-2 rounded-lg ${getPriorityColor(priority)}`}>
+             <p className="text-sm font-semibold">{getPriorityLabel(priority)}</p>
+-            <p className="text-xs opacity-75">Score: {Math.round(priority)}</p>
++            <p className="text-xs opacity-75">スコア：{Math.round(priority)}</p>
+           </div>
+         </div>
+ 
+-        {/* Due Date */}
++        {/* 期日 */}
+         <div>
+-          <p className="text-xs font-medium text-slate-500 mb-2">Due Date</p>
++          <p className="text-xs font-medium text-slate-500 mb-2">期日</p>
+           <div className="flex items-center gap-2 text-sm text-slate-700">
+             <Calendar size={16} className={isTaskOverdue ? 'text-red-500' : 'text-slate-400'} />
+-            <span className={isTaskOverdue ? 'text-red-600 font-medium' : ''}>
+-              {task.dueDate}
+-            </span>
++            <span className={isTaskOverdue ? 'text-red-600 font-medium' : ''}>{task.dueDate}</span>
+           </div>
+           {daysUntilDue < 0 ? (
+             <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+-              <AlertTriangle size={12} /> {Math.abs(daysUntilDue)} days overdue
++              <AlertTriangle size={12} /> {Math.abs(daysUntilDue)} 日超過しています
+             </p>
+           ) : daysUntilDue === 0 ? (
+-            <p className="text-xs text-amber-600 mt-1">Due today</p>
++            <p className="text-xs text-amber-600 mt-1">本日が期日です</p>
+           ) : (
+-            <p className="text-xs text-slate-500 mt-1">{daysUntilDue} days remaining</p>
++            <p className="text-xs text-slate-500 mt-1">残り {daysUntilDue} 日</p>
+           )}
+         </div>
+ 
+-        {/* Importance & Urgency */}
++        {/* 重要度・緊急度 */}
+         <div className="space-y-4">
+           <div>
+-            <p className="text-xs font-medium text-slate-500 mb-2">Importance</p>
++            <p className="text-xs font-medium text-slate-500 mb-2">重要度</p>
+             <ScoreDots value={task.importance} color="bg-blue-500" />
+           </div>
+           <div>
+-            <p className="text-xs font-medium text-slate-500 mb-2">Urgency</p>
++            <p className="text-xs font-medium text-slate-500 mb-2">緊急度</p>
+             <ScoreDots value={task.urgency} color="bg-amber-500" />
+           </div>
+         </div>
+ 
+-        {/* Timestamps */}
++        {/* 作成日 */}
+         <div className="text-xs text-slate-500 space-y-1">
+-          <p>Created: {new Date(task.createdAt).toLocaleDateString()}</p>
++          <p>作成日：{new Date(task.createdAt).toLocaleDateString('ja-JP')}</p>
+         </div>
+       </div>
+ 
+-      {/* Actions */}
++      {/* アクションボタン（固定フッター） */}
+       <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 space-y-2">
+         {task.status === 'todo' && (
+           <button
+@@ -133,7 +130,7 @@
+             }}
+             className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-medium text-sm transition-colors"
+           >
+-            <CheckCircle2 size={16} /> Mark Complete
++            <CheckCircle2 size={16} /> 完了にする
+           </button>
+         )}
+         <button
+@@ -143,7 +140,7 @@
+           }}
+           className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-lg font-medium text-sm transition-colors"
+         >
+-          <Trash2 size={16} /> Delete Task
++          <Trash2 size={16} /> タスクを削除
+         </button>
+       </div>
+     </div>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/components/TaskListBelow.tsx task-matrix-planner-ja/src/components/TaskListBelow.tsx
+--- task-matrix-planner/src/components/TaskListBelow.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/components/TaskListBelow.tsx	2026-05-18 03:27:45.168721408 +0000
+@@ -1,15 +1,13 @@
+-import { CheckCircle2, Trash2, Circle } from 'lucide-react';
++import { CheckCircle2, Trash2 } from 'lucide-react';
+ import type { Task } from '../types';
+ import { calculatePriorityScore, calculateDaysUntilDue, isOverdue } from '../utils';
+ 
++// 重要度・緊急度を小さな点で視覚表現するコンポーネント
+ function ScoreDots({ value, color }: { value: number; color: string }) {
+   return (
+     <span className="flex gap-0.5">
+       {[1, 2, 3, 4, 5].map((i) => (
+-        <span
+-          key={i}
+-          className={`w-1.5 h-1.5 rounded-full ${i <= value ? color : 'bg-slate-200'}`}
+-        />
++        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i <= value ? color : 'bg-slate-200'}`} />
+       ))}
+     </span>
+   );
+@@ -22,31 +20,27 @@
+   onDelete: (taskId: string) => void;
+ }
+ 
+-export default function TaskListBelow({
+-  tasks,
+-  onSelectTask,
+-  onComplete,
+-  onDelete,
+-}: Props) {
++export default function TaskListBelow({ tasks, onSelectTask, onComplete, onDelete }: Props) {
+   const todoTasks = tasks.filter((t) => t.status === 'todo');
+   const completedTasks = tasks.filter((t) => t.status === 'completed');
+ 
++  // タスクがまだ何もない場合の空状態表示
+   if (tasks.length === 0) {
+     return (
+       <div className="text-center py-12">
+-        <p className="text-slate-400 text-sm">No tasks yet. Create one to get started.</p>
++        <p className="text-slate-400 text-sm">タスクがまだありません。最初のタスクを追加してみましょう。</p>
+       </div>
+     );
+   }
+ 
+   return (
+     <div className="space-y-8">
+-      {/* Active Tasks */}
++      {/* 未完了タスク一覧 */}
+       {todoTasks.length > 0 && (
+         <div>
+-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Active Tasks</h3>
++          <h3 className="text-sm font-semibold text-slate-700 mb-3">未完了のタスク</h3>
+           <div className="space-y-2">
+-            {todoTasks.map((task, index) => {
++            {todoTasks.map((task) => {
+               const priority = calculatePriorityScore(task);
+               const daysUntilDue = calculateDaysUntilDue(task.dueDate);
+               const overdue = isOverdue(task);
+@@ -63,7 +57,7 @@
+                         : 'bg-slate-50 border border-slate-200 hover:border-slate-300'
+                   }`}
+                 >
+-                  {/* Task Number */}
++                  {/* タスク番号バッジ */}
+                   <div
+                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${
+                       overdue
+@@ -78,30 +72,20 @@
+                     {String(todoTasks.indexOf(task) + 1).padStart(2, '0')}
+                   </div>
+ 
+-                  {/* Task Info */}
++                  {/* タスク情報 */}
+                   <div className="flex-1 min-w-0">
+-                    <p
+-                      className={`text-sm font-medium truncate ${
+-                        overdue ? 'text-red-900' : 'text-slate-800'
+-                      }`}
+-                    >
++                    <p className={`text-sm font-medium truncate ${overdue ? 'text-red-900' : 'text-slate-800'}`}>
+                       {task.title}
+                     </p>
+                     <div className="flex items-center gap-3 mt-1 text-xs text-slate-600">
+-                      <span
+-                        className={overdue ? 'text-red-600 font-medium' : ''}
+-                      >
+-                        {task.dueDate}
+-                      </span>
++                      <span className={overdue ? 'text-red-600 font-medium' : ''}>{task.dueDate}</span>
+                       {daysUntilDue < 0 && (
+-                        <span className="text-red-600 font-medium">
+-                          {Math.abs(daysUntilDue)}d overdue
+-                        </span>
++                        <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}日超過</span>
+                       )}
+                     </div>
+                   </div>
+ 
+-                  {/* Metrics */}
++                  {/* 重要度・緊急度・スコア（PC以上で表示） */}
+                   <div className="hidden sm:flex items-center gap-4 flex-shrink-0">
+                     <div className="flex items-center gap-1">
+                       <ScoreDots value={task.importance} color="bg-blue-500" />
+@@ -122,25 +106,21 @@
+                     </div>
+                   </div>
+ 
+-                  {/* Actions */}
++                  {/* アクションボタン（ホバー時に表示） */}
+                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                     {task.status === 'todo' && (
+                       <button
+-                        onClick={(e) => {
+-                          e.stopPropagation();
+-                          onComplete(task.id);
+-                        }}
++                        onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
+                         className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
++                        title="完了にする"
+                       >
+                         <CheckCircle2 size={16} />
+                       </button>
+                     )}
+                     <button
+-                      onClick={(e) => {
+-                        e.stopPropagation();
+-                        onDelete(task.id);
+-                      }}
++                      onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+                       className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
++                      title="削除する"
+                     >
+                       <Trash2 size={16} />
+                     </button>
+@@ -152,11 +132,11 @@
+         </div>
+       )}
+ 
+-      {/* Completed Tasks */}
++      {/* 完了済みタスク一覧 */}
+       {completedTasks.length > 0 && (
+         <div>
+           <h3 className="text-sm font-semibold text-slate-700 mb-3">
+-            Completed ({completedTasks.length})
++            完了済み（{completedTasks.length}件）
+           </h3>
+           <div className="space-y-2 opacity-60">
+             {completedTasks.map((task) => (
+@@ -165,15 +145,11 @@
+                 className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 group cursor-pointer hover:bg-slate-100 transition-all"
+               >
+                 <CheckCircle2 size={20} className="text-green-500 flex-shrink-0" />
+-                <p className="text-sm font-medium text-slate-500 line-through flex-1">
+-                  {task.title}
+-                </p>
++                <p className="text-sm font-medium text-slate-500 line-through flex-1">{task.title}</p>
+                 <button
+-                  onClick={(e) => {
+-                    e.stopPropagation();
+-                    onDelete(task.id);
+-                  }}
++                  onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+                   className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
++                  title="削除する"
+                 >
+                   <Trash2 size={16} />
+                 </button>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/data.ts task-matrix-planner-ja/src/data.ts
+--- task-matrix-planner/src/data.ts	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/data.ts	2026-05-18 03:28:13.222294202 +0000
+@@ -1,14 +1,15 @@
+ import type { Task } from './types';
+ 
++// 初期サンプルタスク（日本語）
+ export const initialTasks: Task[] = [
+-  { id: '1', title: 'Set up CI/CD pipeline', dueDate: '2026-05-20', importance: 5, urgency: 4, status: 'todo', createdAt: '2026-05-01T08:00:00Z' },
+-  { id: '2', title: 'Write unit tests for auth module', dueDate: '2026-05-22', importance: 4, urgency: 3, status: 'todo', createdAt: '2026-05-01T09:00:00Z' },
+-  { id: '3', title: 'Design database schema', dueDate: '2026-05-18', importance: 5, urgency: 5, status: 'todo', createdAt: '2026-05-02T10:00:00Z' },
+-  { id: '4', title: 'Update project documentation', dueDate: '2026-05-30', importance: 2, urgency: 1, status: 'todo', createdAt: '2026-05-02T11:00:00Z' },
+-  { id: '5', title: 'Fix login redirect bug', dueDate: '2026-05-15', importance: 5, urgency: 5, status: 'todo', createdAt: '2026-05-03T08:00:00Z' },
+-  { id: '6', title: 'Review pull requests', dueDate: '2026-05-14', importance: 3, urgency: 4, status: 'completed', createdAt: '2026-05-03T09:00:00Z' },
+-  { id: '7', title: 'Refactor API error handling', dueDate: '2026-05-25', importance: 3, urgency: 2, status: 'todo', createdAt: '2026-05-04T10:00:00Z' },
+-  { id: '8', title: 'Schedule team retrospective', dueDate: '2026-05-16', importance: 2, urgency: 3, status: 'todo', createdAt: '2026-05-04T11:00:00Z' },
+-  { id: '9', title: 'Optimize image loading performance', dueDate: '2026-05-28', importance: 3, urgency: 2, status: 'todo', createdAt: '2026-05-05T08:00:00Z' },
+-  { id: '10', title: 'Onboard new team member', dueDate: '2026-05-17', importance: 4, urgency: 4, status: 'completed', createdAt: '2026-05-05T09:00:00Z' },
++  { id: '1', title: 'CI/CDパイプラインのセットアップ', dueDate: '2026-05-20', importance: 5, urgency: 4, status: 'todo', createdAt: '2026-05-01T08:00:00Z' },
++  { id: '2', title: '認証モジュールのユニットテスト作成', dueDate: '2026-05-22', importance: 4, urgency: 3, status: 'todo', createdAt: '2026-05-01T09:00:00Z' },
++  { id: '3', title: 'データベーススキーマの設計', dueDate: '2026-05-18', importance: 5, urgency: 5, status: 'todo', createdAt: '2026-05-02T10:00:00Z' },
++  { id: '4', title: 'プロジェクトドキュメントの更新', dueDate: '2026-05-30', importance: 2, urgency: 1, status: 'todo', createdAt: '2026-05-02T11:00:00Z' },
++  { id: '5', title: 'ログインリダイレクトのバグ修正', dueDate: '2026-05-15', importance: 5, urgency: 5, status: 'todo', createdAt: '2026-05-03T08:00:00Z' },
++  { id: '6', title: 'プルリクエストのレビュー', dueDate: '2026-05-14', importance: 3, urgency: 4, status: 'completed', createdAt: '2026-05-03T09:00:00Z' },
++  { id: '7', title: 'APIエラーハンドリングのリファクタリング', dueDate: '2026-05-25', importance: 3, urgency: 2, status: 'todo', createdAt: '2026-05-04T10:00:00Z' },
++  { id: '8', title: 'チーム振り返り会議のスケジュール調整', dueDate: '2026-05-16', importance: 2, urgency: 3, status: 'todo', createdAt: '2026-05-04T11:00:00Z' },
++  { id: '9', title: '画像読み込みのパフォーマンス最適化', dueDate: '2026-05-28', importance: 3, urgency: 2, status: 'todo', createdAt: '2026-05-05T08:00:00Z' },
++  { id: '10', title: '新メンバーのオンボーディング対応', dueDate: '2026-05-17', importance: 4, urgency: 4, status: 'completed', createdAt: '2026-05-05T09:00:00Z' },
+ ];
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/pages/AddTask.tsx task-matrix-planner-ja/src/pages/AddTask.tsx
+--- task-matrix-planner/src/pages/AddTask.tsx	2026-05-18 03:24:39.323364909 +0000
++++ task-matrix-planner-ja/src/pages/AddTask.tsx	2026-05-18 03:29:32.677388044 +0000
+@@ -11,6 +11,7 @@
+ 
+ const defaultForm: FormData = { title: '', dueDate: '', importance: 3, urgency: 3 };
+ 
++// 重要度・緊急度の評価入力コンポーネント
+ function RatingInput({
+   label,
+   value,
+@@ -23,7 +24,7 @@
+   return (
+     <div>
+       <label className="block text-sm font-medium text-slate-700 mb-2">
+-        {label} <span className="text-slate-400 font-normal">({value}/5)</span>
++        {label} <span className="text-slate-400 font-normal">（{value}/5）</span>
+       </label>
+       <div className="flex gap-2">
+         {[1, 2, 3, 4, 5].map((i) => (
+@@ -56,8 +57,9 @@
+ 
+   const handleSubmit = (e: React.FormEvent) => {
+     e.preventDefault();
+-    if (!form.title.trim()) { setError('Title is required.'); return; }
+-    if (!form.dueDate) { setError('Due date is required.'); return; }
++    // バリデーション
++    if (!form.title.trim()) { setError('タスク名を入力してください。'); return; }
++    if (!form.dueDate) { setError('期日を選択してください。'); return; }
+ 
+     addTask({
+       title: form.title.trim(),
+@@ -73,21 +75,23 @@
+ 
+   return (
+     <div className="max-w-lg">
+-      <h2 className="text-xl font-semibold text-slate-800 mb-6">Add Task</h2>
++      <h2 className="text-xl font-semibold text-slate-800 mb-6">タスクを追加</h2>
+       <form onSubmit={handleSubmit} className="space-y-5">
++        {/* タスク名入力 */}
+         <div>
+-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
++          <label className="block text-sm font-medium text-slate-700 mb-1.5">タスク名</label>
+           <input
+             type="text"
+             value={form.title}
+             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+-            placeholder="e.g. Write project proposal"
++            placeholder="例：プロジェクト提案書を作成する"
+             className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+           />
+         </div>
+ 
++        {/* 期日入力 */}
+         <div>
+-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Due Date</label>
++          <label className="block text-sm font-medium text-slate-700 mb-1.5">期日</label>
+           <input
+             type="date"
+             value={form.dueDate}
+@@ -96,25 +100,28 @@
+           />
+         </div>
+ 
++        {/* 重要度・緊急度 */}
+         <RatingInput
+-          label="Importance"
++          label="重要度"
+           value={form.importance}
+           onChange={(v) => setForm((f) => ({ ...f, importance: v }))}
+         />
+ 
+         <RatingInput
+-          label="Urgency"
++          label="緊急度"
+           value={form.urgency}
+           onChange={(v) => setForm((f) => ({ ...f, urgency: v }))}
+         />
+ 
++        {/* エラーメッセージ */}
+         {error && <p className="text-sm text-red-500">{error}</p>}
+ 
++        {/* 送信ボタン */}
+         <button
+           type="submit"
+           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+         >
+-          Add Task
++          タスクを追加する
+         </button>
+       </form>
+     </div>
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/pages/Dashboard.tsx task-matrix-planner-ja/src/pages/Dashboard.tsx
+--- task-matrix-planner/src/pages/Dashboard.tsx	2026-05-18 03:24:39.324739574 +0000
++++ task-matrix-planner-ja/src/pages/Dashboard.tsx	2026-05-18 03:28:47.314052337 +0000
+@@ -25,17 +25,17 @@
+     .length;
+ 
+   const stats = [
+-    { label: 'Total Tasks', value: total, color: 'bg-slate-100 text-slate-700' },
+-    { label: 'To Do', value: todo, color: 'bg-blue-50 text-blue-700' },
+-    { label: 'Completed', value: completed, color: 'bg-green-50 text-green-700' },
+-    { label: 'Overdue', value: overdue, color: 'bg-red-50 text-red-700' },
+-    { label: 'Due Today', value: today, color: 'bg-amber-50 text-amber-700' },
+-    { label: 'High Priority', value: high, color: 'bg-orange-50 text-orange-700' },
++    { label: '総タスク数', value: total, color: 'bg-slate-100 text-slate-700' },
++    { label: '未完了', value: todo, color: 'bg-blue-50 text-blue-700' },
++    { label: '完了済み', value: completed, color: 'bg-green-50 text-green-700' },
++    { label: '期限切れ', value: overdue, color: 'bg-red-50 text-red-700' },
++    { label: '本日期限', value: today, color: 'bg-amber-50 text-amber-700' },
++    { label: '高優先度', value: high, color: 'bg-orange-50 text-orange-700' },
+   ];
+ 
+   return (
+     <div>
+-      <h2 className="text-xl font-semibold text-slate-800 mb-6">Dashboard</h2>
++      <h2 className="text-xl font-semibold text-slate-800 mb-6">ダッシュボード</h2>
+       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+         {stats.map(({ label, value, color }) => (
+           <div key={label} className={`rounded-xl p-4 ${color}`}>
+@@ -46,8 +46,9 @@
+       </div>
+ 
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
++        {/* 完了率プログレスバー */}
+         <div>
+-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Completion Rate</h3>
++          <h3 className="text-sm font-semibold text-slate-700 mb-3">完了率</h3>
+           <div className="h-3 bg-slate-200 rounded-full overflow-hidden w-full">
+             <div
+               className="h-full bg-green-500 rounded-full transition-all duration-500"
+@@ -55,16 +56,17 @@
+             />
+           </div>
+           <p className="text-xs text-slate-500 mt-2">
+-            {total ? Math.round((completed / total) * 100) : 0}% of tasks complete
++            全タスクの {total ? Math.round((completed / total) * 100) : 0}% が完了しています
+           </p>
+         </div>
+ 
++        {/* 今週の予定 */}
+         <div>
+-          <h3 className="text-sm font-semibold text-slate-700 mb-3">This Week</h3>
++          <h3 className="text-sm font-semibold text-slate-700 mb-3">今週の予定</h3>
+           <div className="space-y-2">
+             <div className="flex items-center justify-between text-sm">
+-              <span className="text-slate-600">Due within 7 days</span>
+-              <span className="font-semibold text-slate-800">{upcomingDays}</span>
++              <span className="text-slate-600">7日以内に期限を迎えるタスク</span>
++              <span className="font-semibold text-slate-800">{upcomingDays}件</span>
+             </div>
+             <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+               <div
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/pages/TaskList.tsx task-matrix-planner-ja/src/pages/TaskList.tsx
+--- task-matrix-planner/src/pages/TaskList.tsx	2026-05-18 03:24:39.324739574 +0000
++++ task-matrix-planner-ja/src/pages/TaskList.tsx	2026-05-18 03:29:16.008726807 +0000
+@@ -10,6 +10,7 @@
+   type SortBy,
+ } from '../utils';
+ 
++// 重要度・緊急度を点で視覚表現するコンポーネント
+ function ScoreDots({ value, color }: { value: number; color: string }) {
+   return (
+     <span className="flex gap-0.5">
+@@ -23,6 +24,13 @@
+   );
+ }
+ 
++// フィルタラベルの日本語マッピング
++const filterLabels: Record<'all' | 'today' | 'overdue', string> = {
++  all: 'すべて',
++  today: '本日',
++  overdue: '期限切れ',
++};
++
+ export default function TaskList() {
+   const tasks = useTaskStore((s) => s.tasks);
+   const completeTask = useTaskStore((s) => s.completeTask);
+@@ -34,20 +42,25 @@
+   const filtered = filterTasks(tasks, filter);
+   const sorted = sortTasks(filtered, sortBy);
+ 
++  // タスクが空の場合の空状態表示
+   if (sorted.length === 0) {
+-    const filterLabel = filter === 'today' ? 'today' : filter === 'overdue' ? 'overdue' : 'any';
+     return (
+       <div>
+-        <h2 className="text-xl font-semibold text-slate-800 mb-6">Task List</h2>
+-        <p className="text-slate-400 text-sm">No {filterLabel} tasks.</p>
++        <h2 className="text-xl font-semibold text-slate-800 mb-6">タスク一覧</h2>
++        <p className="text-slate-400 text-sm">
++          {filter === 'today' ? '本日期限のタスクはありません。' :
++           filter === 'overdue' ? '期限切れのタスクはありません。' :
++           'タスクがまだありません。'}
++        </p>
+       </div>
+     );
+   }
+ 
+   return (
+     <div>
+-      <h2 className="text-xl font-semibold text-slate-800 mb-6">Task List</h2>
++      <h2 className="text-xl font-semibold text-slate-800 mb-6">タスク一覧</h2>
+ 
++      {/* フィルター・ソートコントロール */}
+       <div className="flex flex-wrap gap-4 mb-6">
+         <div className="flex gap-2">
+           {(['all', 'today', 'overdue'] as const).map((f) => (
+@@ -60,37 +73,36 @@
+                   : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+               }`}
+             >
+-              {f.charAt(0).toUpperCase() + f.slice(1)}
++              {filterLabels[f]}
+             </button>
+           ))}
+         </div>
+ 
+-        <div className="flex gap-2">
+-          <label className="text-sm font-medium text-slate-600 flex items-center">
+-            Sort:
+-          </label>
++        <div className="flex gap-2 items-center">
++          <label className="text-sm font-medium text-slate-600">並び替え：</label>
+           <select
+             value={sortBy}
+             onChange={(e) => setSortBy(e.target.value as SortBy)}
+             className="px-3 py-1.5 rounded-lg text-sm border border-slate-300 bg-white text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+           >
+-            <option value="due-date">Due Date</option>
+-            <option value="priority-score">Priority Score</option>
++            <option value="due-date">期日順</option>
++            <option value="priority-score">優先度スコア順</option>
+           </select>
+         </div>
+       </div>
+ 
++      {/* タスクテーブル */}
+       <div className="overflow-x-auto">
+         <table className="w-full text-sm">
+           <thead>
+             <tr className="border-b border-slate-200">
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Title</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Due Date</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Days Until</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Importance</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Urgency</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Priority</th>
+-              <th className="text-left pb-3 pr-4 font-medium text-slate-500">Status</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">タスク名</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">期日</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">残り日数</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">重要度</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">緊急度</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">優先度</th>
++              <th className="text-left pb-3 pr-4 font-medium text-slate-500">状態</th>
+               <th className="pb-3 font-medium text-slate-500"></th>
+             </tr>
+           </thead>
+@@ -103,24 +115,16 @@
+               return (
+                 <tr
+                   key={task.id}
+-                  className={`group hover:bg-slate-50 transition-colors ${
+-                    overdue ? 'bg-red-25' : ''
+-                  }`}
++                  className={`group hover:bg-slate-50 transition-colors ${overdue ? 'bg-red-25' : ''}`}
+                 >
+                   <td
+                     className={`py-3 pr-4 font-medium ${
+-                      task.status === 'completed'
+-                        ? 'line-through text-slate-400'
+-                        : 'text-slate-800'
++                      task.status === 'completed' ? 'line-through text-slate-400' : 'text-slate-800'
+                     }`}
+                   >
+                     {task.title}
+                   </td>
+-                  <td
+-                    className={`py-3 pr-4 ${
+-                      overdue ? 'text-red-600 font-medium' : 'text-slate-600'
+-                    }`}
+-                  >
++                  <td className={`py-3 pr-4 ${overdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
+                     {task.dueDate}
+                   </td>
+                   <td
+@@ -132,7 +136,7 @@
+                           : 'text-slate-600'
+                     }`}
+                   >
+-                    {daysUntilDue < 0 ? `${Math.abs(daysUntilDue)}d ago` : `${daysUntilDue}d`}
++                    {daysUntilDue < 0 ? `${Math.abs(daysUntilDue)}日超過` : `残り${daysUntilDue}日`}
+                   </td>
+                   <td className="py-3 pr-4">
+                     <ScoreDots value={task.importance} color="bg-blue-500" />
+@@ -156,11 +160,11 @@
+                   <td className="py-3 pr-4">
+                     {task.status === 'completed' ? (
+                       <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+-                        <CheckCircle2 size={11} /> Done
++                        <CheckCircle2 size={11} /> 完了
+                       </span>
+                     ) : (
+                       <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+-                        <Circle size={11} /> To Do
++                        <Circle size={11} /> 未完了
+                       </span>
+                     )}
+                   </td>
+@@ -169,7 +173,7 @@
+                       {task.status === 'todo' && (
+                         <button
+                           onClick={() => completeTask(task.id)}
+-                          title="Mark complete"
++                          title="完了にする"
+                           className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
+                         >
+                           <CheckCircle2 size={16} />
+@@ -177,7 +181,7 @@
+                       )}
+                       <button
+                         onClick={() => deleteTask(task.id)}
+-                        title="Delete"
++                        title="削除する"
+                         className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                       >
+                         <Trash2 size={16} />
+diff -ru '--exclude=node_modules' '--exclude=dist' '--exclude=package-lock.json' task-matrix-planner/src/utils.ts task-matrix-planner-ja/src/utils.ts
+--- task-matrix-planner/src/utils.ts	2026-05-18 03:24:39.324739574 +0000
++++ task-matrix-planner-ja/src/utils.ts	2026-05-18 03:28:26.478461792 +0000
+@@ -1,24 +1,30 @@
+ import type { Task } from './types';
+ 
++// 今日の日付をYYYY-MM-DD形式で返す
+ const today = () => new Date().toISOString().slice(0, 10);
+ 
++// 作成からの経過日数を計算する
+ export function calculateDaysSinceCreated(createdAt: string): number {
+   const created = new Date(createdAt);
+   const now = new Date();
+   return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+ }
+ 
++// 期日までの残り日数を計算する（負の場合は超過）
+ export function calculateDaysUntilDue(dueDate: string): number {
+   const due = new Date(dueDate);
+   const now = new Date();
+   return Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+ }
+ 
++// 期日超過日数を返す（超過していない場合は0）
+ export function calculateOverdueDays(dueDate: string): number {
+   const days = calculateDaysUntilDue(dueDate);
+   return days < 0 ? Math.abs(days) : 0;
+ }
+ 
++// 優先度スコアを計算する
++// 計算式：緊急度×20 + 重要度×15 + 時間係数（期日が近いほど高い）
+ export function calculatePriorityScore(task: Task): number {
+   if (task.status === 'completed') return 0;
+ 
+@@ -30,18 +36,18 @@
+   return urgencyWeight + importanceWeight + timeWeight;
+ }
+ 
++// タスクが期限切れかどうかを判定する
+ export function isOverdue(task: Task): boolean {
+   return task.status === 'todo' && task.dueDate < today();
+ }
+ 
++// 期日が今日かどうかを判定する
+ export function isToday(dueDate: string): boolean {
+   return dueDate === today();
+ }
+ 
+-export function filterTasks(
+-  tasks: Task[],
+-  filter: 'all' | 'today' | 'overdue'
+-): Task[] {
++// フィルタ条件に基づいてタスクを絞り込む
++export function filterTasks(tasks: Task[], filter: 'all' | 'today' | 'overdue'): Task[] {
+   switch (filter) {
+     case 'today':
+       return tasks.filter((t) => t.status === 'todo' && isToday(t.dueDate));
+@@ -55,6 +61,8 @@
+ 
+ export type SortBy = 'due-date' | 'priority-score';
+ 
++// ソート条件に基づいてタスクを並び替える
++// 未完了タスクを常に先頭に表示する
+ export function sortTasks(tasks: Task[], sortBy: SortBy): Task[] {
+   const sorted = [...tasks];
+ 
