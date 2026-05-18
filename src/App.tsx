@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { collection, query, where, onSnapshot, writeBatch, doc } from 'firebase/firestore';
+import { LogOut } from 'lucide-react';
+import { auth, db } from './firebase';
 import { useTaskStore } from './store';
 import Matrix from './components/Matrix';
 import TaskDetailPanel from './components/TaskDetailPanel';
 import AddTaskModal from './components/AddTaskModal';
 import TaskListBelow from './components/TaskListBelow';
+import Login from './components/Login';
 import { isOverdue } from './utils';
+import { initialTasks } from './data';
+import type { Task } from './types';
 
 export default function App() {
   const tasks = useTaskStore((s) => s.tasks);
+  const user = useTaskStore((s) => s.user);
+  const setTasks = useTaskStore((s) => s.setTasks);
+  const setUser = useTaskStore((s) => s.setUser);
+  
   const addTask = useTaskStore((s) => s.addTask);
   const completeTask = useTaskStore((s) => s.completeTask);
   const deleteTask = useTaskStore((s) => s.deleteTask);
@@ -20,9 +31,67 @@ export default function App() {
   const selectedTask = tasks.find((t) => t.id === selectedTaskId) || null;
   const overdueTasks = tasks.filter((t) => isOverdue(t));
 
+  // Firebase Auth & Firestore リアルタイム同期
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+
+      if (firebaseUser) {
+        // 現在のユーザーIDに紐づくタスクのみをフィルタリング取得
+        const q = query(
+          collection(db, 'tasks'),
+          where('userId', '==', firebaseUser.uid)
+        );
+
+        const unsubscribeFirestore = onSnapshot(q, (snapshot) => {
+          const tasksList: Task[] = [];
+          snapshot.forEach((doc) => {
+            tasksList.push({ id: doc.id, ...doc.data() } as Task);
+          });
+
+          // 初回ログインでタスクが空の場合は、シードデータ（サンプル）を書き込み
+          if (snapshot.empty) {
+            const batch = writeBatch(db);
+            initialTasks.forEach((t) => {
+              const newDocRef = doc(collection(db, 'tasks'));
+              batch.set(newDocRef, {
+                title: t.title,
+                dueDate: t.dueDate,
+                dueTime: t.dueTime || null,
+                importance: t.importance,
+                urgency: t.urgency,
+                status: t.status,
+                userId: firebaseUser.uid,
+                createdAt: new Date().toISOString(),
+              });
+            });
+            batch.commit();
+          } else {
+            setTasks(tasksList);
+          }
+        });
+
+        return () => {
+          unsubscribeFirestore();
+        };
+      } else {
+        setTasks([]);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+    };
+  }, [setUser, setTasks]);
+
   const handleAddTask = (data: Parameters<typeof addTask>[0]) => {
     addTask(data);
   };
+
+  // 未ログインの場合はログイン画面を表示
+  if (!user) {
+    return <Login />;
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,6 +102,7 @@ export default function App() {
             <h1 className="text-2xl font-bold text-slate-900">タスクマトリクス</h1>
             <p className="text-sm text-slate-500 mt-0.5">優先順位を明確に管理する</p>
           </div>
+          
           <div className="flex flex-wrap items-center gap-3">
             <div className="text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex items-center gap-1.5 shadow-sm">
               <span className="font-semibold text-slate-900 text-base">
@@ -89,6 +159,36 @@ export default function App() {
                   </div>
                 </>
               )}
+            </div>
+
+            {/* ユーザープロフィール & ログアウト */}
+            <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || 'ユーザー'}
+                  className="w-8 h-8 rounded-full border border-slate-200 shadow-sm"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm shadow-sm">
+                  {user.displayName ? user.displayName[0].toUpperCase() : 'U'}
+                </div>
+              )}
+              <div className="hidden md:flex flex-col text-left">
+                <span className="text-xs font-semibold text-slate-800 line-clamp-1 max-w-[100px]">
+                  {user.displayName || '社員ユーザー'}
+                </span>
+                <span className="text-[9px] text-slate-400 line-clamp-1 max-w-[120px]">
+                  {user.email}
+                </span>
+              </div>
+              <button
+                onClick={() => signOut(auth)}
+                className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-400 transition-colors ml-1 cursor-pointer"
+                title="ログアウト"
+              >
+                <LogOut size={16} />
+              </button>
             </div>
           </div>
         </div>
