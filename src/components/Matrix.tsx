@@ -10,17 +10,17 @@ const SCALE = 5;
 function getTaskColor(task: Task, priority: number): string {
   if (task.status === 'completed') return '#d1d5db';
   if (isOverdue(task)) return '#ef4444';
-  if (priority >= 120) return '#dc2626';
-  if (priority >= 80) return '#f97316';
-  return '#3b82f6';
+  if (priority >= 8.0) return '#dc2626'; // 高優先度（赤）
+  if (priority >= 5.0) return '#f97316'; // 中優先度（オレンジ）
+  return '#3b82f6'; // 通常（青）
 }
 
 // タスク円のサイズを優先度・状態に応じて決定する
 function getTaskRadius(task: Task, priority: number): number {
   if (task.status === 'completed') return 12;
   if (isOverdue(task)) return 20;
-  if (priority >= 120) return 18;
-  if (priority >= 80) return 16;
+  if (priority >= 8.0) return 18;
+  if (priority >= 5.0) return 16;
   return 14;
 }
 
@@ -103,47 +103,66 @@ export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick
         </text>
 
         {/* タスクの点をプロット */}
-        {todoTasks.map((task, index) => {
-          const x = xScale(task.urgency);
-          const y = yScale(task.importance);
-          const priority = calculatePriorityScore(task);
-          const radius = getTaskRadius(task, priority);
-          const color = getTaskColor(task, priority);
-          const isSelected = selectedTaskId === task.id;
-          const isHovered = hoveredTaskId === task.id;
+        {(() => {
+          const coordinateCounts: { [key: string]: number } = {};
+          return todoTasks.map((task, index) => {
+            const priority = calculatePriorityScore(task);
+            const radius = getTaskRadius(task, priority);
+            const color = getTaskColor(task, priority);
+            const isSelected = selectedTaskId === task.id;
+            const isHovered = hoveredTaskId === task.id;
 
-          return (
-            <g key={task.id}>
-              {/* 高優先度タスクのグロー（パルスアニメーション） */}
-              {(isOverdue(task) || priority >= 80) && (
-                <circle cx={x} cy={y} r={radius + 8} fill={color} opacity="0.15" className="animate-pulse" />
-              )}
+            // 衝突判定と微小オフセット（ジッター）の計算
+            const coordKey = `${task.urgency}-${task.importance}`;
+            const count = coordinateCounts[coordKey] || 0;
+            coordinateCounts[coordKey] = count + 1;
 
-              {/* 選択中タスクのリング */}
-              {isSelected && (
-                <circle cx={x} cy={y} r={radius + 6} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4,2" />
-              )}
+            let offsetX = 0;
+            let offsetY = 0;
+            if (count > 0) {
+              // 衝突がある場合は黄金角で放射状に綺麗に分散配置
+              const angle = count * 2.4;
+              const distance = 18; // 重複したドット同士が重ならない距離
+              offsetX = Math.cos(angle) * distance;
+              offsetY = Math.sin(angle) * distance;
+            }
 
-              {/* タスク本体の円 */}
-              <circle
-                cx={x}
-                cy={y}
-                r={radius}
-                fill={color}
-                className={`cursor-pointer transition-all duration-200 ${isHovered || isSelected ? 'filter drop-shadow-lg' : ''}`}
-                style={{ filter: isHovered || isSelected ? 'drop-shadow(0 0 8px rgba(0,0,0,0.2))' : 'none' }}
-                onClick={() => onSelectTask(task.id)}
-                onMouseEnter={() => setHoveredTaskId(task.id)}
-                onMouseLeave={() => setHoveredTaskId(null)}
-              />
+            const x = xScale(task.urgency) + offsetX;
+            const y = yScale(task.importance) + offsetY;
 
-              {/* タスク番号ラベル */}
-              <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-white pointer-events-none">
-                {String(index + 1).padStart(2, '0')}
-              </text>
-            </g>
-          );
-        })}
+            return (
+              <g key={task.id}>
+                {/* 高優先度タスクのグロー（パルスアニメーション） */}
+                {(isOverdue(task) || priority >= 8.0) && (
+                  <circle cx={x} cy={y} r={radius + 8} fill={color} opacity="0.15" className="animate-pulse" />
+                )}
+
+                {/* 選択中タスクのリング */}
+                {isSelected && (
+                  <circle cx={x} cy={y} r={radius + 6} fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="4,2" />
+                )}
+
+                {/* タスク本体の円 */}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={radius}
+                  fill={color}
+                  className={`cursor-pointer transition-all duration-200 ${isHovered || isSelected ? 'filter drop-shadow-lg' : ''}`}
+                  style={{ filter: isHovered || isSelected ? 'drop-shadow(0 0 8px rgba(0,0,0,0.2))' : 'none' }}
+                  onClick={() => onSelectTask(task.id)}
+                  onMouseEnter={() => setHoveredTaskId(task.id)}
+                  onMouseLeave={() => setHoveredTaskId(null)}
+                />
+
+                {/* タスク番号ラベル */}
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-white pointer-events-none">
+                  {String(index + 1).padStart(2, '0')}
+                </text>
+              </g>
+            );
+          });
+        })()}
       </svg>
 
       {/* 凡例 */}
