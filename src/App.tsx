@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, query, where, onSnapshot, writeBatch, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { LogOut } from 'lucide-react';
 import { auth, db } from './firebase';
 import { useTaskStore } from './store';
@@ -10,7 +10,6 @@ import AddTaskModal from './components/AddTaskModal';
 import TaskListBelow from './components/TaskListBelow';
 import Login from './components/Login';
 import { isOverdue } from './utils';
-import { initialTasks } from './data';
 import type { Task } from './types';
 
 export default function App() {
@@ -48,27 +47,7 @@ export default function App() {
           snapshot.forEach((doc) => {
             tasksList.push({ id: doc.id, ...doc.data() } as Task);
           });
-
-          // 初回ログインでタスクが空の場合は、シードデータ（サンプル）を書き込み
-          if (snapshot.empty) {
-            const batch = writeBatch(db);
-            initialTasks.forEach((t) => {
-              const newDocRef = doc(collection(db, 'tasks'));
-              batch.set(newDocRef, {
-                title: t.title,
-                dueDate: t.dueDate,
-                dueTime: t.dueTime || null,
-                importance: t.importance,
-                urgency: t.urgency,
-                status: t.status,
-                userId: firebaseUser.uid,
-                createdAt: new Date().toISOString(),
-              });
-            });
-            batch.commit();
-          } else {
-            setTasks(tasksList);
-          }
+          setTasks(tasksList);
         });
 
         return () => {
