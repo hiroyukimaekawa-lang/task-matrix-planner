@@ -76,24 +76,51 @@ export default function App() {
     <div className="min-h-screen bg-white">
       {/* ヘッダー */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">タスクマトリクス</h1>
-            <p className="text-sm text-slate-500 mt-0.5">優先順位を明確に管理する</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
+          
+          {/* タイトルとモバイル用プロフィール（モバイルでは横並び） */}
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold text-slate-900">タスクマトリクス</h1>
+              <p className="text-[11px] sm:text-sm text-slate-500 mt-0.5">優先順位を明確に管理する</p>
+            </div>
+            
+            {/* モバイル用アバター＆ログアウト（sm以上で非表示） */}
+            <div className="flex sm:hidden items-center gap-1.5">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || 'ユーザー'}
+                  className="w-7 h-7 rounded-full border border-slate-200 shadow-sm"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                  {user.displayName ? user.displayName[0].toUpperCase() : 'U'}
+                </div>
+              )}
+              <button
+                onClick={() => signOut(auth)}
+                className="p-1 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-400 transition-colors ml-0.5 cursor-pointer"
+                title="ログアウト"
+              >
+                <LogOut size={14} />
+              </button>
+            </div>
           </div>
           
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex items-center gap-1.5 shadow-sm">
-              <span className="font-semibold text-slate-900 text-base">
+          {/* カウンター・アラート・デスクトップ用プロフィール */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="text-xs sm:text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1.5 shadow-sm">
+              <span className="font-semibold text-slate-900 text-sm sm:text-base">
                 {tasks.filter((t) => t.status === 'todo').length}
               </span>
-              <span className="text-slate-500 text-xs">件の未完了タスク</span>
+              <span className="text-slate-500 text-[10px] sm:text-xs">件の未完了タスク</span>
             </div>
             
             <div className="relative">
               <button
                 onClick={() => setIsOverdueOpen(!isOverdueOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all shadow-sm ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border text-[10px] sm:text-xs font-semibold transition-all shadow-sm ${
                   overdueTasks.length > 0
                     ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100 hover:border-red-300 hover:scale-105 active:scale-95 cursor-pointer font-bold'
                     : 'bg-slate-50 border-slate-200 text-slate-400 cursor-default'
@@ -140,16 +167,16 @@ export default function App() {
               )}
             </div>
 
-            {/* ユーザープロフィール & ログアウト */}
-            <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+            {/* デスクトップ用プロフィール & ログアウト（sm以上で表示） */}
+            <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200">
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'ユーザー'}
-                  className="w-8 h-8 rounded-full border border-slate-200 shadow-sm"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 shadow-sm"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm shadow-sm">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs sm:text-sm shadow-sm">
                   {user.displayName ? user.displayName[0].toUpperCase() : 'U'}
                 </div>
               )}
@@ -163,10 +190,10 @@ export default function App() {
               </div>
               <button
                 onClick={() => signOut(auth)}
-                className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-400 transition-colors ml-1 cursor-pointer"
+                className="p-1 sm:p-1.5 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-400 transition-colors ml-0.5 sm:ml-1 cursor-pointer"
                 title="ログアウト"
               >
-                <LogOut size={16} />
+                <LogOut size={14} className="sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>

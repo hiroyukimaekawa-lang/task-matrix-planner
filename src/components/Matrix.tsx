@@ -10,9 +10,7 @@ const SCALE = 4;
 function getTaskColor(task: Task, priority: number): string {
   if (task.status === 'completed') return '#d1d5db';
   if (isOverdue(task)) return '#ef4444';
-  if (priority >= 7) return '#dc2626'; // 高優先度（赤）
-  if (priority >= 4) return '#f97316'; // 中優先度（オレンジ）
-  return '#3b82f6'; // 通常（青）
+  return '#94a3b8'; // 通常タスク（グレー・色なし）
 }
 
 // タスク円のサイズを優先度・状態に応じて決定する (0〜8点)
@@ -120,8 +118,8 @@ export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick
 
             return (
               <g key={task.id}>
-                {/* 高優先度タスクのグロー（パルスアニメーション） */}
-                {(isOverdue(task) || priority >= 8.0) && (
+                {/* 期限切れタスクのグロー（パルスアニメーション） */}
+                {isOverdue(task) && (
                   <circle cx={x} cy={y} r={radius + 8} fill={color} opacity="0.15" className="animate-pulse" />
                 )}
 
@@ -160,12 +158,8 @@ export default function Matrix({ tasks, selectedTaskId, onSelectTask, onAddClick
           <span>期限切れ</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-orange-500" />
-          <span>高優先度</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500" />
-          <span>通常</span>
+          <div className="w-3 h-3 rounded-full bg-slate-400" />
+          <span>通常タスク</span>
         </div>
       </div>
 

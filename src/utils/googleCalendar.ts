@@ -76,10 +76,9 @@ export async function syncTaskToGoogleCalendar(
   const isTimed = !!task.dueTime;
 
   // Google Calendar用イベントモデルの構築
-  const memoStr = task.memo ? `\n\n【メモ】\n${task.memo}` : '';
   const eventBody: any = {
     summary: task.title,
-    description: `【タスクマトリクス プランナーから同期】\n重要度: ${task.importance}\n緊急度: ${task.urgency}\nステータス: ${task.status === 'completed' ? '完了' : '未完了'}${memoStr}`,
+    description: task.memo || '',
   };
 
   if (isTimed) {
