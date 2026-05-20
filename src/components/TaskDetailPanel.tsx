@@ -1,20 +1,59 @@
 import { useState, useEffect } from 'react';
 import { X, CheckCircle2, Trash2, Calendar, AlertTriangle } from 'lucide-react';
 import type { Task } from '../types';
-import { calculatePriorityScore, calculateDaysUntilDue, isOverdue } from '../utils';
+import { calculatePriorityScore, calculateDaysUntilDue, isOverdue, calculateUrgency } from '../utils';
 import {
   initGoogleClient,
   requestAccessToken,
   syncTaskToGoogleCalendar,
 } from '../utils/googleCalendar';
 
-// 重要度・緊急度を点で視覚化するコンポーネント
+// 重要度・緊急度を点で視覚化するコンポーネント (読み取り専用)
 function ScoreDots({ value, color }: { value: number; color: string }) {
   return (
-    <span className="flex gap-1">
+    <span className="flex gap-1.5 items-center py-0.5">
       {[1, 2, 3, 4].map((i) => (
-        <span key={i} className={`w-2 h-2 rounded-full ${i <= value ? color : 'bg-slate-200'}`} />
+        <span
+          key={i}
+          className={`w-3.5 h-3.5 rounded-full transition-colors ${
+            i <= value ? color : 'bg-slate-200'
+          }`}
+        />
       ))}
+      <span className="text-xs font-semibold text-slate-500 ml-1.5">{value} / 4</span>
+    </span>
+  );
+}
+
+// 重要度変更用のインタラクティブなドットコンポーネント
+interface InteractiveScoreDotsProps {
+  value: number;
+  color: string;
+  onChange: (newValue: number) => void;
+}
+
+function InteractiveScoreDots({ value, color, onChange }: InteractiveScoreDotsProps) {
+  return (
+    <span className="flex gap-1.5 items-center">
+      {[1, 2, 3, 4].map((i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => {
+            const newValue = value === i ? i - 1 : i;
+            onChange(newValue);
+          }}
+          className="p-0.5 rounded-full hover:scale-125 focus:outline-none transition-transform cursor-pointer"
+          title={`重要度 ${i}`}
+        >
+          <span
+            className={`block w-3.5 h-3.5 rounded-full border border-transparent transition-colors ${
+              i <= value ? color : 'bg-slate-200 hover:bg-slate-300'
+            }`}
+          />
+        </button>
+      ))}
+      <span className="text-xs font-semibold text-slate-500 ml-1.5">{value} / 4</span>
     </span>
   );
 }
@@ -159,7 +198,8 @@ export default function TaskDetailPanel({
                 value={task.dueDate}
                 onChange={(e) => {
                   if (e.target.value) {
-                    onUpdate(task.id, { dueDate: e.target.value });
+                    const newUrgency = calculateUrgency(e.target.value, task.importance);
+                    onUpdate(task.id, { dueDate: e.target.value, urgency: newUrgency as Task['urgency'] });
                   }
                 }}
                 className="bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition w-full"
@@ -243,11 +283,21 @@ export default function TaskDetailPanel({
         {/* 重要度・緊急度 */}
         <div className="space-y-4 pt-2 border-t border-slate-200">
           <div>
-            <p className="text-xs font-medium text-slate-500 mb-2">重要度</p>
-            <ScoreDots value={task.importance} color="bg-blue-500" />
+            <p className="text-xs font-medium text-slate-500 mb-1.5">重要度 (タップして変更)</p>
+            <InteractiveScoreDots
+              value={task.importance}
+              color="bg-blue-500"
+              onChange={(newImportance) => {
+                const newUrgency = calculateUrgency(task.dueDate, newImportance);
+                onUpdate(task.id, {
+                  importance: newImportance as Task['importance'],
+                  urgency: newUrgency as Task['urgency'],
+                });
+              }}
+            />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 mb-2">緊急度</p>
+            <p className="text-xs font-medium text-slate-500 mb-1.5">緊急度 (期日と重要度から自動算出)</p>
             <ScoreDots value={task.urgency} color="bg-amber-500" />
           </div>
         </div>
