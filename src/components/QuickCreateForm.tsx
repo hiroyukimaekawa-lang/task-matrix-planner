@@ -7,9 +7,10 @@ type FormData = {
   title: string;
   dueDate: string;
   importance: number;
+  timeRequired: 'small' | 'medium' | 'large';
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', importance: 2 };
+const defaultForm: FormData = { title: '', dueDate: '', importance: 2, timeRequired: 'medium' };
 
 interface Props {
   onAdd: (data: Omit<Task, 'id' | 'status' | 'createdAt'>) => void;
@@ -38,6 +39,7 @@ export default function QuickCreateForm({ onAdd }: Props) {
       dueDate: form.dueDate,
       importance: form.importance as Task['importance'],
       urgency: calculateUrgency(form.dueDate, form.importance) as Task['urgency'],
+      timeRequired: form.timeRequired,
     });
 
     setForm(defaultForm);
@@ -84,11 +86,11 @@ export default function QuickCreateForm({ onAdd }: Props) {
               <span className="text-sm font-semibold text-slate-700">{form.importance}/4</span>
             </div>
             <div className="flex gap-1">
-              {[0, 1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4].map((i) => (
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setForm((f) => ({ ...f, importance: i }))}
+                  onClick={() => setForm((f) => ({ ...f, importance: i as 1 | 2 | 3 | 4 }))}
                   className={`flex-1 py-1.5 rounded text-xs font-bold transition-colors ${
                     i <= form.importance ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                   }`}
@@ -99,15 +101,27 @@ export default function QuickCreateForm({ onAdd }: Props) {
             </div>
           </div>
 
-          {/* 緊急度（自動算出） */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center text-xs text-slate-600">
-              <span>緊急度</span>
-              <span className="font-semibold text-amber-600">
-                {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
-              </span>
+          {/* かかる時間 */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-slate-600">かかる時間</label>
+            <div className="flex gap-1">
+              {(['small', 'medium', 'large'] as const).map((size) => {
+                const labelMap = { small: '小', medium: '中', large: '大' };
+                const isSelected = form.timeRequired === size;
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, timeRequired: size }))}
+                    className={`flex-1 py-1.5 rounded text-xs font-bold transition-colors ${
+                      isSelected ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                    }`}
+                  >
+                    {labelMap[size]}
+                  </button>
+                );
+              })}
             </div>
-            <p className="text-[10px] text-slate-400">期日と重要度に基づき自動決定されます</p>
           </div>
 
           {/* エラーメッセージ */}

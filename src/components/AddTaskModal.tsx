@@ -9,9 +9,10 @@ type FormData = {
   dueTime: string;
   importance: number;
   memo: string;
+  timeRequired: 'small' | 'medium' | 'large';
 };
 
-const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 2, memo: '' };
+const defaultForm: FormData = { title: '', dueDate: '', dueTime: '', importance: 2, memo: '', timeRequired: 'medium' };
 
 interface Props {
   isOpen: boolean;
@@ -43,6 +44,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
       importance: form.importance as Task['importance'],
       urgency: calculateUrgency(form.dueDate, form.importance) as Task['urgency'],
       memo: form.memo.trim() || undefined,
+      timeRequired: form.timeRequired,
     });
 
     setForm(defaultForm);
@@ -139,11 +141,11 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
                 <span className="text-sm font-semibold text-slate-600">{form.importance}/4</span>
               </div>
               <div className="flex gap-1.5">
-                {[0, 1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4].map((i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={() => setForm((f) => ({ ...f, importance: i }))}
+                    onClick={() => setForm((f) => ({ ...f, importance: i as 1 | 2 | 3 | 4 }))}
                     className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
                       i <= form.importance
                         ? 'bg-blue-600 text-white shadow-md'
@@ -156,21 +158,30 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: Props) {
               </div>
             </div>
 
-            {/* 緊急度（自動算出） */}
+            {/* かかる時間 */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-slate-700">緊急度</label>
-                <span className="text-sm font-semibold text-amber-600">
-                  {form.dueDate ? `${calculateUrgency(form.dueDate, form.importance)}/4` : '期日選択後に自動計算'}
-                </span>
-              </div>
-              <div className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
-                期日と重要度に基づいて自動的に算出されます。
-                {form.dueDate && (
-                  <span className="block mt-1.5 font-semibold text-slate-700">
-                    現在の算出結果: {calculateUrgency(form.dueDate, form.importance) >= 3 ? '🔴 高い緊急度' : calculateUrgency(form.dueDate, form.importance) >= 2 ? '🟡 中程度の緊急度' : '🟢 低い緊急度'}
-                  </span>
-                )}
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                かかる時間
+              </label>
+              <div className="flex gap-1.5">
+                {(['small', 'medium', 'large'] as const).map((size) => {
+                  const labelMap = { small: '小', medium: '中', large: '大' };
+                  const isSelected = form.timeRequired === size;
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, timeRequired: size }))}
+                      className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${
+                        isSelected
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                      }`}
+                    >
+                      {labelMap[size]}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

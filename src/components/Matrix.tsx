@@ -13,13 +13,12 @@ function getTaskColor(task: Task, priority: number): string {
   return '#94a3b8'; // 通常タスク（グレー・色なし）
 }
 
-// タスク円のサイズを優先度・状態に応じて決定する (0〜8点)
+// タスク円のサイズを優先度・状態・かかる時間に応じて決定する
 function getTaskRadius(task: Task, priority: number): number {
   if (task.status === 'completed') return 12;
-  if (isOverdue(task)) return 20;
-  if (priority >= 7) return 18;
-  if (priority >= 4) return 16;
-  return 14;
+  if (task.timeRequired === 'large') return 24;
+  if (task.timeRequired === 'small') return 10;
+  return 16;
 }
 
 interface Props {

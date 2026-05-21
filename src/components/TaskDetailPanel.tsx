@@ -40,8 +40,7 @@ function InteractiveScoreDots({ value, color, onChange }: InteractiveScoreDotsPr
           key={i}
           type="button"
           onClick={() => {
-            const newValue = value === i ? i - 1 : i;
-            onChange(newValue);
+            onChange(i);
           }}
           className="p-0.5 rounded-full hover:scale-125 focus:outline-none transition-transform cursor-pointer"
           title={`重要度 ${i}`}
@@ -237,6 +236,30 @@ export default function TaskDetailPanel({
                 );
               })}
             </select>
+          </div>
+        </div>
+
+        {/* かかる時間 */}
+        <div>
+          <p className="text-xs font-medium text-slate-500 mb-2">かかる時間 (グラフの円の大きさ)</p>
+          <div className="flex gap-2">
+            {(['small', 'medium', 'large'] as const).map((size) => {
+              const labelMap = { small: '小', medium: '中', large: '大' };
+              const isSelected = task.timeRequired === size || (!task.timeRequired && size === 'medium');
+              return (
+                <button
+                  key={size}
+                  onClick={() => onUpdate(task.id, { timeRequired: size })}
+                  className={`flex-1 py-1.5 rounded text-sm font-semibold transition-colors border ${
+                    isSelected
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'bg-white border-slate-300 text-slate-600 hover:border-blue-400'
+                  }`}
+                >
+                  {labelMap[size]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
